@@ -41,11 +41,12 @@ Lv5 商业项目（持续）   → 工程化/部署/数字孪生毕业项目
 - [x] Lv1 Project 01: 3D产品展示台
 - [x] STUDY-PLAN.html（学习计划预览版 v3）
 - [x] NOTES.html（学习笔记预览版）
-- [x] 学习计划 v3：整合掘金 Shader 文章，新增几何体内部结构+UV 铺垫
+- [x] 学习计划 v3：审计修复 — +PBR深入 +纹理系统 +Sprite标注 +Shader初体验桥梁
+- [x] reference/GLOSSARY.md（术语表）
+- [x] AUDIT-REPORT.md（审计报告）
 
 ### 下一步待生成
-- [ ] Lv2 Demo 06-12 + Project 02（含 🆕 几何体内部结构 + UV坐标）
-- [ ] Lv3 Demo 13-17 + Project 03
-- [ ] Lv4 Demo 18-26 + Project 04（Shader 渐进路线重构）
-- [ ] Lv5 工程化 + 毕业项目
-- [ ] reference/ 速查参考（GLOSSARY.md 术语表、API速查等）
+- [ ] Lv2 Demo 06-13 + Project 02（共 9 个课件）
+- [ ] Lv3 Demo 14-20 + Project 03（共 8 个课件，含 Shader 初体验桥梁）
+- [ ] Lv4 Demo 21-32 + Project 04（共 13 个课件）
+- [ ] Lv5 Demo 33-37 + Project 05-10（共 11 个课件）

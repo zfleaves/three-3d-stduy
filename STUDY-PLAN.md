@@ -143,46 +143,72 @@
 - 阴影完整配置、软阴影 vs 硬阴影
 - **收获**：掌握阴影系统
 
-### 2.8 🎯 综合项目：3D 房间漫游（2小时）
+### 2.8 PBR 材质深入（45分钟）⭐ 新增
+**Demo**: `demo-13-pbr-deep.html`
+- 环境贴图对金属反射的影响（无环境贴图→金属发黑）
+- 粗糙度×金属度×环境贴图的三角关系
+- roughnessMap / metalnessMap / normalMap / aoMap 用法
+- MeshStandardMaterial 全部参数详解
+- **收获**：彻底理解 PBR 材质，为 Lv3 模型加载打好材质基础
+
+### 2.9 🎯 综合项目：3D 房间漫游（2小时）
 **Demo**: `project-02-room-tour.html`
 - 几何体搭建房间 + 光影阴影 + 第一人称漫游（WASD）+ 粒子灰尘
 - **收获**：完整3D场景搭建能力
 
 ---
 
-## Lv3 — 模型加载与交互（7-10天）
+## Lv3 — 模型加载与交互（10-14天）
 
 > **目标**：加载外部模型，实现交互，做出"像产品"的3D页面
 > **难度**：★★★☆☆
 
 ### 3.1 GLTF/GLB 模型加载（1小时）
-**Demo**: `demo-13-load-model.html`
+**Demo**: `demo-14-load-model.html`
 - 加载 GLB 模型、调整大小位置、加载进度、失败处理
+- 免费模型资源：[Sketchfab](https://sketchfab.com/)、[Khronos glTF Samples](https://github.com/KhronosGroup/glTF-Sample-Models)
 - **收获**：引入外部3D资源
 
-### 3.2 模型动画播放（1小时）
-**Demo**: `demo-14-model-animation.html`
-- 骨骼动画播放、切换、混合（淡入淡出）
+### 3.2 模型动画播放（1.5小时）
+**Demo**: `demo-15-model-animation.html`
+- 骨骼动画播放、多动画切换、淡入淡出混合
+- AnimationMixer / AnimationClip / AnimationAction
 - **收获**：让模型动起来
 
-### 3.3 鼠标拾取与交互（1小时）
-**Demo**: `demo-15-raycaster.html`
-- Raycaster 射线检测、悬浮高亮、点击选中
+### 3.3 纹理系统深入（1小时）⭐ 新增
+**Demo**: `demo-16-texture-system.html`
+- 颜色贴图、法线贴图、粗糙度贴图、金属贴图、AO贴图、环境贴图
+- 贴图偏移 offset、重复 repeat、翻转 flipY
+- 贴图加载管理器 TextureLoader + LoadingManager
+- **收获**：掌握完整的纹理工作流
+
+### 3.4 鼠标拾取与交互（1小时）
+**Demo**: `demo-17-raycaster.html`
+- Raycaster 射线检测、悬浮高亮、点击选中、弹出信息
 - **收获**：3D场景核心交互能力
 
-### 3.4 天空盒与环境（30分钟）
-**Demo**: `demo-16-skybox.html`
-- 天空盒、雾化、背景渐变
+### 3.5 天空盒与环境（30分钟）
+**Demo**: `demo-18-skybox.html`
+- 天空盒（全景环境）、雾化效果、背景渐变
 - **收获**：营造场景氛围
 
-### 3.5 场景管理（45分钟）
-**Demo**: `demo-17-scene-management.html`
+### 3.6 场景管理与 2D 标注（1小时）⭐ 整合
+**Demo**: `demo-19-scene-management.html`
 - Group 分组、显示/隐藏、场景切换、克隆
-- **收获**：管理复杂场景
+- Sprite 精灵标注（始终面向屏幕）
+- CSS2DRenderer 标签（HTML 内容标注）
+- **收获**：管理复杂场景 + 3D 场景中的信息展示
 
-### 3.6 🎯 综合项目：3D 产品展示官网（3小时）
+### 3.7 Shader 初体验：用 UV 做渐变（1小时）⭐ 新增 — Lv4 桥梁
+**Demo**: `demo-20-shader-preview.html`
+- 用 ShaderMaterial 替换 MeshBasicMaterial（回顾 Lv2 的 UV 理解）
+- 片元着色器最简单的 UV 渐变：`gl_FragColor = vec4(vUv.x, vUv.y, 0.0, 1.0);`
+- 不深入 GLSL，只感受"替换材质"的魔法
+- **收获**：**为 Lv4 Shader 学习做最后铺垫，消除"突然写GLSL"的恐惧**
+
+### 3.8 🎯 综合项目：3D 产品展示官网（3小时）
 **Demo**: `project-03-product-page.html`
-- GLB模型 + PBR材质 + 颜色切换 + 动画 + 响应式
+- GLB模型 + PBR材质 + 纹理贴图 + 颜色切换 + 动画 + 响应式
 - **收获**：可上线的产品展示页
 
 ---
@@ -508,11 +534,11 @@ Lv2已铺垫(几何体内部结构+UV) → 复习顶点属性 → 替换ShaderMa
 | 阶段 | 小 Demo | 综合项目 | 合计 | 说明 |
 |------|---------|---------|------|------|
 | Lv1 快速上手 | 5 | 1 | 6 | 全部 ✅ |
-| Lv2 深入理解 | 7 | 1 | 8 | 新增几何体内部结构+UV |
-| Lv3 模型交互 | 5 | 1 | 6 | — |
+| Lv2 深入理解 | 8 | 1 | **9** | +PBR深入 |
+| Lv3 模型交互 | 7 | 1 | **8** | +纹理系统+Sprite标注+Shader初体验 |
 | Lv4 Shader+性能 | 12 | 1 | 13 | Shader 10专项+3性能+1项目 |
 | Lv5 工程化+落地 | 5 | **6** | **11** | 工程化基础 + 6个落地项目 |
-| **总计** | **34** | **10** | **44** | |
+| **总计** | **37** | **10** | **47** | |
 
 ---
 
@@ -538,10 +564,11 @@ Lv2已铺垫(几何体内部结构+UV) → 复习顶点属性 → 替换ShaderMa
 | Day 4-5 | Lv2.1 几何体内部结构 + Lv2.2 UV坐标 | ☐ |
 | Day 6-7 | Lv2.3 坐标变换 + Lv2.4 纹理贴图 | ☐ |
 | Day 8-9 | Lv2.5 动画 + Lv2.6 粒子 | ☐ |
-| Day 10-11 | Lv2.7 阴影 + Lv2.8 🎯 房间漫游 | ☐ |
-| Day 12-14 | Lv3.1 模型加载 + Lv3.2 动画 | ☐ |
-| Day 15-17 | Lv3.3 鼠标拾取 + Lv3.4 天空盒 + Lv3.5 场景管理 | ☐ |
-| Day 18-19 | Lv3.6 🎯 产品展示官网 | ☐ |
+| Day 10-11 | Lv2.7 阴影 + Lv2.8 PBR深入 | ☐ |
+| Day 12 | Lv2.9 🎯 3D房间漫游 | ☐ |
+| Day 13-15 | Lv3.1 模型加载 + Lv3.2 动画 + Lv3.3 纹理系统 | ☐ |
+| Day 16-18 | Lv3.4 鼠标拾取 + Lv3.5 天空盒 + Lv3.6 场景管理 | ☐ |
+| Day 19 | Lv3.7 Shader初体验 + Lv3.8 🎯 产品展示官网 | ☐ |
 | Day 20-22 | Lv4.1 第一个ShaderMaterial + Lv4.2 GLSL速成 + Lv4.3 数据传递 | ☐ |
 | Day 23-26 | Lv4.4 顶点着色器 + Lv4.5 片元UV创意 + Lv4.6 纹理采样 | ☐ |
 | Day 27-30 | Lv4.7 噪声算法 + Lv4.8 经典特效 | ☐ |
