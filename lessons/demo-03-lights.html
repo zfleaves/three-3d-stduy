@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo 03：光影魔法 — 让场景亮起来</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .demo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  @media (max-width: 700px) { .demo-row { grid-template-columns: 1fr; } }
+  .canvas-wrap {
+    background: #0a0a12; border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center;
+    min-height: 360px; position: relative; overflow: hidden;
+  }
+  .canvas-wrap .badge {
+    position: absolute; top: 0.6rem; right: 0.8rem;
+    background: #059669; color: #fff; font-size: 0.7rem;
+    padding: 0.15rem 0.5rem; border-radius: 10px; font-weight: 600;
+  }
+  .light-controls {
+    display: flex; flex-direction: column; gap: 0.4rem;
+    font-size: 0.88rem;
+  }
+  .light-row {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.4rem 0.6rem; border-radius: 6px; background: var(--code-bg);
+  }
+  .light-row label { flex: 1; font-weight: 500; cursor: pointer; }
+  .light-row input[type="checkbox"] { width: 1rem; height: 1rem; accent-color: var(--accent); }
+  .light-row input[type="range"] { width: 70px; }
+  .light-row .val { font-family: var(--mono); font-size: 0.75rem; min-width: 28px; text-align: right; }
+  .light-icon { font-size: 1.3rem; width: 28px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="lesson-meta">
+  <span class="level-badge">Lv1 · Demo 3/6</span>
+  <span>Three.js 快速上手</span>
+  <span>⏱ 约 25 分钟</span>
+</div>
+
+<h1>Demo 03：光影魔法 — 让场景亮起来</h1>
+
+<p>
+  没有光照的3D场景就像黑屋子，什么也看不见。Three.js 提供了 <strong>5 种光源</strong>，
+  本课逐一认识它们，理解每种光的使用场景。
+</p>
+
+<div class="callout success">
+  <strong>🎯 本课目标：</strong>能说出 5 种光源的名字和用途，知道如何搭配使用让场景好看。
+</div>
+
+<!-- ====== 灯光演示 ====== -->
+<h2>🎮 实时灯光实验室</h2>
+<p>勾选/取消勾选每种光源，拖动滑块调整强度，观察场景变化：</p>
+
+<div class="demo-row">
+  <div class="canvas-wrap" id="lightWrap">
+    <div class="badge">灯光实验室</div>
+  </div>
+  <div class="light-controls" id="lightControls">
+    <div style="font-weight:650;margin-bottom:0.3rem;">💡 光源开关</div>
+    <div class="light-row">
+      <span class="light-icon">☀️</span>
+      <label>环境光 AmbientLight</label>
+      <input type="checkbox" id="ambToggle" checked>
+      <input type="range" id="ambIntensity" min="0" max="3" step="0.1" value="0.6">
+      <span class="val" id="ambVal">0.6</span>
+    </div>
+    <div class="light-row">
+      <span class="light-icon">🔆</span>
+      <label>平行光 DirectionalLight</label>
+      <input type="checkbox" id="dirToggle" checked>
+      <input type="range" id="dirIntensity" min="0" max="5" step="0.1" value="2">
+      <span class="val" id="dirVal">2.0</span>
+    </div>
+    <div class="light-row">
+      <span class="light-icon">💡</span>
+      <label>点光源 PointLight</label>
+      <input type="checkbox" id="ptToggle">
+      <input type="range" id="ptIntensity" min="0" max="50" step="1" value="30">
+      <span class="val" id="ptVal">30</span>
+    </div>
+    <div class="light-row">
+      <span class="light-icon">🔦</span>
+      <label>聚光灯 SpotLight</label>
+      <input type="checkbox" id="spotToggle">
+      <input type="range" id="spotIntensity" min="0" max="100" step="1" value="50">
+      <span class="val" id="spotVal">50</span>
+    </div>
+    <div class="light-row">
+      <span class="light-icon">🌓</span>
+      <label>半球光 HemisphereLight</label>
+      <input type="checkbox" id="hemiToggle">
+      <input type="range" id="hemiIntensity" min="0" max="2" step="0.1" value="0.5">
+      <span class="val" id="hemiVal">0.5</span>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 5种光源详解 ====== -->
+<h2>📖 5 种光源详解</h2>
+
+<table>
+  <tr><th>光源</th><th>类比</th><th>特点</th><th>适用场景</th></tr>
+  <tr>
+    <td>☀️ <strong>环境光</strong><br><code>AmbientLight</code></td>
+    <td>阴天的自然光</td>
+    <td>均匀照亮所有面，<strong>无方向、无阴影</strong></td>
+    <td>基础亮度，防止暗面全黑</td>
+  </tr>
+  <tr>
+    <td>🔆 <strong>平行光</strong><br><code>DirectionalLight</code></td>
+    <td>🌞 太阳光</td>
+    <td>从远处平行射来，<strong>能产生阴影</strong></td>
+    <td>室外场景主光源，最常用</td>
+  </tr>
+  <tr>
+    <td>💡 <strong>点光源</strong><br><code>PointLight</code></td>
+    <td>💡 灯泡</td>
+    <td>从一个点向四周发射，<strong>随距离衰减</strong></td>
+    <td>室内灯光、烛光、灯泡</td>
+  </tr>
+  <tr>
+    <td>🔦 <strong>聚光灯</strong><br><code>SpotLight</code></td>
+    <td>🔦 手电筒</td>
+    <td>锥形光束，有角度和衰减</td>
+    <td>舞台追光、车灯、手电筒</td>
+  </tr>
+  <tr>
+    <td>🌓 <strong>半球光</strong><br><code>HemisphereLight</code></td>
+    <td>🌤️ 天空+地面反射</td>
+    <td>天空色+地面色渐变，无方向</td>
+    <td>室外场景的氛围光</td>
+  </tr>
+</table>
+
+<div class="callout">
+  <strong>🔑 最常用组合：</strong>环境光（基础亮度）+ 平行光（主光源+阴影）= 90% 场景够用。<br>
+  点光源和聚光灯用于特殊效果，半球光用于室外场景的氛围营造。
+</div>
+
+<!-- ====== 光照原理 ====== -->
+<h2>📖 为什么 MeshStandardMaterial 需要光照？</h2>
+
+<p>在 Demo 01 中我们用了 <code>MeshStandardMaterial</code>——这是一种<strong>物理渲染（PBR）材质</strong>，它必须依赖光照才能显示。如果把所有光源关掉，物体会变成纯黑色。</p>
+
+<div class="demo-row">
+  <div class="canvas-wrap" id="compareWrap" style="min-height:280px;">
+    <div class="badge">材质对比</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;">
+    <div style="padding:0.5rem 0.8rem;background:#ecfdf5;border-radius:var(--radius);border-left:3px solid #059669;">
+      <strong>MeshStandardMaterial</strong>（标准材质）<br>
+      受光照影响，有明暗面，真实感强<br>
+      ✅ 推荐：几乎所有场景
+    </div>
+    <div style="padding:0.5rem 0.8rem;background:#fffbeb;border-radius:var(--radius);border-left:3px solid #d97706;">
+      <strong>MeshBasicMaterial</strong>（基础材质）<br>
+      不受光照影响，始终显示颜色<br>
+      ⚠️ 仅用于：调试、线框、不受光的UI元素
+    </div>
+    <div style="font-size:0.82rem;color:var(--text-muted);margin-top:0.3rem;">
+      → 左侧球体使用 StandardMaterial（受光）<br>
+      → 右侧球体使用 BasicMaterial（不受光）<br>
+      → 关闭所有光源看差异！
+    </div>
+  </div>
+</div>
+
+<!-- ====== 测验 ====== -->
+<h2>📝 小测验</h2>
+
+<div class="quiz-block" id="quiz1">
+  <div class="quiz-question">Q1: 以下哪种光源能产生阴影？</div>
+  <div class="quiz-options">
+    <label><input type="radio" name="q1" value="a">A. 环境光 AmbientLight</label>
+    <label><input type="radio" name="q1" value="b">B. 平行光 DirectionalLight</label>
+    <label><input type="radio" name="q1" value="c">C. 半球光 HemisphereLight</label>
+    <label><input type="radio" name="q1" value="d">D. 以上都不能</label>
+  </div>
+  <div class="quiz-feedback" id="q1fb"></div>
+
+  <div class="quiz-question">Q2: 如果只用一个光源，场景中物体的背面会怎样？</div>
+  <div class="quiz-options">
+    <label><input type="radio" name="q2" value="a">A. 自动变亮</label>
+    <label><input type="radio" name="q2" value="b">B. 完全黑色</label>
+    <label><input type="radio" name="q2" value="c">C. 变成半透明</label>
+    <label><input type="radio" name="q2" value="d">D. 消失不见</label>
+  </div>
+  <div class="quiz-feedback" id="q2fb"></div>
+
+  <button id="checkBtn" style="margin-top:0.8rem;padding:0.5rem 1.5rem;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-size:0.9rem;font-weight:600;">
+    检查答案
+  </button>
+</div>
+
+<!-- ====== 课后练习 ====== -->
+<h2>🏋️ 课后练习</h2>
+<ol class="steps">
+  <li><strong>模拟一天</strong>：改变环境光+平行光强度，模拟清晨→正午→黄昏的光照变化</li>
+  <li><strong>做一个台灯场景</strong>：用点光源模拟台灯，观察 distance 参数对衰减的影响</li>
+  <li><strong>舞台追光</strong>：用聚光灯照射一个球体，调整 angle 和 penumbra 参数</li>
+  <li><strong>关灯实验</strong>：把所有光源关掉，看场景全黑 → 只开环境光 → 只开平行光 → 两者都开，体会每种光的作用</li>
+</ol>
+
+<div class="lesson-footer">
+  <nav>
+    <a href="demo-02-geometries.html">← Demo 02：几何体家族</a>
+    <a href="demo-04-orbit-controls.html">Demo 04：鼠标控制视角 →</a>
+  </nav>
+  <p>
+    <strong>📖 参考：</strong><a href="https://threejs.org/docs/index.html#api/zh/lights/AmbientLight" target="_blank">Three.js 光源文档</a><br>
+    <strong>💬 有疑问？</strong>随时向 AI 助教提问！
+  </p>
+  <p style="margin-top:1rem;color:var(--text-muted);">
+    ← <a href="../STUDY-PLAN.md">返回学习计划</a>
+  </p>
+</div>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+// ======== 灯光实验室 ========
+const wrap = document.getElementById('lightWrap');
+const w = wrap.clientWidth || 400;
+const h = 360;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 100);
+camera.position.set(2, 2.5, 4.5);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(w, h);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+wrap.appendChild(renderer.domElement);
+
+// 光源
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+directionalLight.position.set(3, 5, 3);
+scene.add(directionalLight);
+
+const pointLight = new THREE.PointLight(0xff6600, 30, 8);
+pointLight.position.set(1.5, 1, 1.5);
+pointLight.visible = false;
+scene.add(pointLight);
+
+const spotLight = new THREE.SpotLight(0x4488ff, 50, 10, Math.PI / 6, 0.3, 0.5);
+spotLight.position.set(-2, 3, 2);
+spotLight.visible = false;
+scene.add(spotLight);
+
+const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x8b7355, 0.5);
+hemiLight.visible = false;
+scene.add(hemiLight);
+
+// 可视化辅助
+const ptHelper = new THREE.PointLightHelper(pointLight, 0.2);
+ptHelper.visible = false;
+scene.add(ptHelper);
+const spotHelper = new THREE.SpotLightHelper(spotLight);
+spotHelper.visible = false;
+scene.add(spotHelper);
+
+// 场景物体
+scene.add(new THREE.GridHelper(4, 12, 0x333333, 0x222222));
+
+// 中心球体
+const sphere = new THREE.Mesh(
+  new THREE.SphereGeometry(0.7, 48, 48),
+  new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.25, metalness: 0.1 })
+);
+scene.add(sphere);
+
+// 周围柱子和立方体
+const pillar1 = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.2, 0.25, 1.2, 32),
+  new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.4, metalness: 0.3 })
+);
+pillar1.position.set(-1.2, 0.3, 0.8);
+scene.add(pillar1);
+
+const pillar2 = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.2, 0.25, 1.2, 32),
+  new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.4, metalness: 0.3 })
+);
+pillar2.position.set(1.2, 0.3, -0.8);
+scene.add(pillar2);
+
+const box = new THREE.Mesh(
+  new THREE.BoxGeometry(0.5, 0.5, 0.5),
+  new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.3, metalness: 0.2 })
+);
+box.position.set(1.0, -0.1, 0.6);
+scene.add(box);
+
+// 地面
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(5, 5),
+  new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.8, metalness: 0 })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -0.7;
+scene.add(floor);
+
+// 控件绑定
+function bindToggle(id, light, helper) {
+  document.getElementById(id).addEventListener('change', (e) => {
+    light.visible = e.target.checked;
+    if (helper) helper.visible = e.target.checked;
+  });
+}
+function bindIntensity(id, light, displayId) {
+  document.getElementById(id).addEventListener('input', (e) => {
+    light.intensity = +e.target.value;
+    document.getElementById(displayId).textContent = (+e.target.value).toFixed(1);
+  });
+}
+
+bindToggle('ambToggle', ambientLight);
+bindIntensity('ambIntensity', ambientLight, 'ambVal');
+bindToggle('dirToggle', directionalLight);
+bindIntensity('dirIntensity', directionalLight, 'dirVal');
+bindToggle('ptToggle', pointLight, ptHelper);
+bindIntensity('ptIntensity', pointLight, 'ptVal');
+bindToggle('spotToggle', spotLight, spotHelper);
+bindIntensity('spotIntensity', spotLight, 'spotVal');
+bindToggle('hemiToggle', hemiLight);
+bindIntensity('hemiIntensity', hemiLight, 'hemiVal');
+
+function animate() {
+  requestAnimationFrame(animate);
+  sphere.rotation.y += 0.008;
+  ptHelper.update();
+  spotHelper.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+new ResizeObserver(() => {
+  const nw = wrap.clientWidth;
+  renderer.setSize(nw, h);
+  camera.aspect = nw / h;
+  camera.updateProjectionMatrix();
+}).observe(wrap);
+
+// ======== 材质对比 ========
+const cpWrap = document.getElementById('compareWrap');
+const cw = cpWrap.clientWidth || 380;
+const ch = 280;
+
+const cpScene = new THREE.Scene();
+const cpCamera = new THREE.PerspectiveCamera(45, cw / ch, 0.1, 100);
+cpCamera.position.set(0, 0.2, 5);
+cpCamera.lookAt(0, 0, 0);
+
+const cpRenderer = new THREE.WebGLRenderer({ antialias: true });
+cpRenderer.setSize(cw, ch);
+cpRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+cpWrap.appendChild(cpRenderer.domElement);
+
+const cpAmbient = new THREE.AmbientLight(0xffffff, 0.5);
+cpScene.add(cpAmbient);
+const cpDir = new THREE.DirectionalLight(0xffffff, 1.5);
+cpDir.position.set(2, 4, 3);
+cpScene.add(cpDir);
+
+const stdSphere = new THREE.Mesh(
+  new THREE.SphereGeometry(0.55, 48, 48),
+  new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.3, metalness: 0.1 })
+);
+stdSphere.position.x = -0.8;
+cpScene.add(stdSphere);
+
+const basicSphere = new THREE.Mesh(
+  new THREE.SphereGeometry(0.55, 48, 48),
+  new THREE.MeshBasicMaterial({ color: 0x3b82f6 })
+);
+basicSphere.position.x = 0.8;
+cpScene.add(basicSphere);
+
+// 标签
+const sprite1 = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: (() => { const c = document.createElement('canvas'); c.width = 128; c.height = 32; const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.font = '14px sans-serif'; ctx.fillText('Standard', 8, 22); return new THREE.CanvasTexture(c); })()
+}));
+sprite1.position.set(-0.8, 0.8, 0);
+sprite1.scale.set(1, 0.25, 1);
+cpScene.add(sprite1);
+
+const sprite2 = new THREE.Sprite(new THREE.SpriteMaterial({
+  map: (() => { const c = document.createElement('canvas'); c.width = 128; c.height = 32; const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.font = '14px sans-serif'; ctx.fillText('Basic', 8, 22); return new THREE.CanvasTexture(c); })()
+}));
+sprite2.position.set(0.8, 0.8, 0);
+sprite2.scale.set(1, 0.25, 1);
+cpScene.add(sprite2);
+
+function cpAnimate() {
+  requestAnimationFrame(cpAnimate);
+  stdSphere.rotation.y += 0.01;
+  basicSphere.rotation.y += 0.01;
+  cpRenderer.render(cpScene, cpCamera);
+}
+cpAnimate();
+
+new ResizeObserver(() => {
+  const nw = cpWrap.clientWidth;
+  cpRenderer.setSize(nw, ch);
+  cpCamera.aspect = nw / ch;
+  cpCamera.updateProjectionMatrix();
+}).observe(cpWrap);
+
+// 测验
+document.getElementById('checkBtn').addEventListener('click', () => {
+  const answers = { q1: 'b', q2: 'b' };
+  Object.keys(answers).forEach(q => {
+    const sel = document.querySelector(`input[name="${q}"]:checked`);
+    const fb = document.getElementById(q + 'fb');
+    if (!sel) { fb.textContent = '请选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+    if (sel.value === answers[q]) {
+      fb.textContent = '✅ 正确！';
+      fb.className = 'quiz-feedback correct';
+    } else {
+      fb.textContent = '❌ 再想想。';
+      fb.className = 'quiz-feedback wrong';
+    }
+  });
+});
+</script>
+</body>
+</html>

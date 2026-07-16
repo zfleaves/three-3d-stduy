@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏆 综合项目：3D 产品展示台</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .canvas-wrap {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: var(--radius); min-height: 420px;
+    position: relative; overflow: hidden; cursor: grab;
+  }
+  .canvas-wrap:active { cursor: grabbing; }
+  .canvas-wrap .badge {
+    position: absolute; top: 0.8rem; right: 0.8rem; z-index: 2;
+    background: #f59e0b; color: #000; font-size: 0.7rem;
+    padding: 0.2rem 0.6rem; border-radius: 10px; font-weight: 700;
+  }
+  .canvas-wrap .info-bar {
+    position: absolute; bottom: 0.8rem; left: 50%; transform: translateX(-50%); z-index: 2;
+    display: flex; gap: 0.5rem;
+  }
+  .info-bar button {
+    background: rgba(0,0,0,0.6); color: #fff; border: 1px solid rgba(255,255,255,0.2);
+    padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.78rem;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .info-bar button:hover { background: rgba(59,130,246,0.5); border-color: rgba(255,255,255,0.4); }
+  .info-bar button.active { background: #3b82f6; border-color: #3b82f6; }
+  .color-dots { display: flex; gap: 0.5rem; margin: 0.5rem 0; }
+  .color-dot {
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.2s;
+  }
+  .color-dot:hover { transform: scale(1.15); }
+  .color-dot.active { border-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.4); }
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; font-size: 0.85rem; }
+  .feature-item { padding: 0.5rem 0.7rem; background: var(--code-bg); border-radius: 6px; }
+  .feature-item strong { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="lesson-meta">
+  <span class="level-badge" style="background:#f59e0b !important;color:#000 !important;">🏆 Lv1 综合项目</span>
+  <span>约 1 小时</span>
+  <span>复习 Demo 01-05 全部知识点</span>
+</div>
+
+<h1>🏆 综合项目：3D 产品展示台</h1>
+
+<p>
+  这是 Lv1 的<strong>毕业项目</strong>。你将综合运用前面 5 个 Demo 学到的所有知识——场景搭建、几何体、光照、交互控制、材质——来创建一个可以展示的产品展台。
+</p>
+
+<div class="callout success">
+  <strong>🎯 项目目标：</strong>独立完成一个可交互的 3D 产品展示台，包含多物体场景、光照阴影、鼠标交互、材质切换、颜色选择。完成这个项目，Lv1 就算通关了！
+</div>
+
+<!-- ====== 主场景 ====== -->
+<h2>🎮 3D 产品展示台</h2>
+
+<div class="canvas-wrap" id="mainWrap">
+  <div class="badge">🏆 产品展示台</div>
+  <div class="info-bar">
+    <button class="active" data-product="watch">⌚ 手表</button>
+    <button data-product="headphones">🎧 耳机</button>
+    <button data-product="speaker">🔊 音箱</button>
+    <button data-product="bottle">🧴 瓶子</button>
+  </div>
+</div>
+
+<div class="demo-row" style="margin-top:1rem;">
+  <div style="display:flex;flex-direction:column;gap:0.8rem;">
+    <div>
+      <div style="font-weight:650;font-size:0.9rem;margin-bottom:0.3rem;">🎨 颜色选择</div>
+      <div class="color-dots">
+        <span class="color-dot active" data-color="#3b82f6" style="background:#3b82f6;"></span>
+        <span class="color-dot" data-color="#ef4444" style="background:#ef4444;"></span>
+        <span class="color-dot" data-color="#f59e0b" style="background:#f59e0b;"></span>
+        <span class="color-dot" data-color="#10b981" style="background:#10b981;"></span>
+        <span class="color-dot" data-color="#8b5cf6" style="background:#8b5cf6;"></span>
+        <span class="color-dot" data-color="#111111" style="background:#111111;"></span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:0.4rem;">
+      <label style="font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;">
+        <input type="checkbox" id="autoRotate" checked> 自动旋转
+      </label>
+      <label style="font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;">
+        <input type="checkbox" id="showGrid" checked> 显示网格
+      </label>
+      <label style="font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;">
+        <input type="checkbox" id="showWireframe"> 线框模式
+      </label>
+    </div>
+  </div>
+  <div class="feature-grid">
+    <div class="feature-item"><strong>✅ 场景</strong> 展台+地面+背景</div>
+    <div class="feature-item"><strong>✅ 几何体</strong> 多种形状组合</div>
+    <div class="feature-item"><strong>✅ 光照</strong> 环境光+平行光+阴影</div>
+    <div class="feature-item"><strong>✅ 交互</strong> OrbitControls</div>
+    <div class="feature-item"><strong>✅ 材质</strong> PBR + 颜色切换</div>
+    <div class="feature-item"><strong>✅ 响应式</strong> 窗口自适应</div>
+  </div>
+</div>
+
+<!-- ====== 代码要点 ====== -->
+<h2>📖 项目结构解析</h2>
+
+<p>这个项目的代码结构是你后续所有 Three.js 项目的<strong>基础模板</strong>：</p>
+
+<pre><code>// 1. 初始化：创建 Scene + Camera + Renderer
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+// 2. 灯光：环境光 + 平行光（最常用组合）
+scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+
+// 3. 物体：创建几何体 + 材质 + 添加到场景
+const mesh = new THREE.Mesh(geometry, material);
+scene.add(mesh);
+
+// 4. 交互：OrbitControls
+const controls = new OrbitControls(camera, renderer.domElement);
+
+// 5. 循环：每帧更新 + 渲染
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();</code></pre>
+
+<div class="callout">
+  <strong>💡 这个模板 5 步走</strong>，适用于 90% 的 Three.js 场景。以后每个项目都从这里开始。
+</div>
+
+<!-- ====== 课后任务 ====== -->
+<h2>🏋️ 扩展挑战</h2>
+<ol class="steps">
+  <li><strong>加阴影</strong>：给场景添加阴影（renderer.shadowMap + 物体 castShadow + 地面 receiveShadow）</li>
+  <li><strong>加粒子</strong>：在展台周围添加浮动粒子，营造氛围感</li>
+  <li><strong>加动画</strong>：让产品有悬浮动画（上下轻微浮动）</li>
+  <li><strong>改布局</strong>：把产品排列成一行，做成对比展示</li>
+  <li><strong>加背景</strong>：用渐变背景色替换纯色背景</li>
+</ol>
+
+<div class="lesson-footer">
+  <nav>
+    <a href="demo-05-materials.html">← Demo 05：材质初探</a>
+    <a href="demo-06-transforms.html">Lv2 Demo 06：坐标与变换 →</a>
+  </nav>
+  <p>
+    <strong>🎉 Lv1 完成！</strong>你已经掌握 Three.js 的基础操作。接下来进入 Lv2，学习坐标变换、纹理、动画等进阶内容。<br>
+    <strong>💬 有疑问？</strong>随时向 AI 助教提问！
+  </p>
+  <p style="margin-top:1rem;color:var(--text-muted);">
+    ← <a href="../STUDY-PLAN.md">返回学习计划</a>
+  </p>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const wrap = document.getElementById('mainWrap');
+const w = wrap.clientWidth || 600;
+const h = 420;
+
+const scene = new THREE.Scene();
+
+// 渐变背景
+const bgColor = new THREE.Color(0x1a1a2e);
+scene.background = bgColor;
+scene.fog = new THREE.Fog(0x1a1a2e, 5, 15);
+
+const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
+camera.position.set(3, 2.5, 5);
+camera.lookAt(0, 0.5, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(w, h);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+wrap.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.6;
+controls.target.set(0, 0.5, 0);
+controls.minDistance = 2;
+controls.maxDistance = 8;
+controls.maxPolarAngle = Math.PI / 2 + 0.3;
+
+// 灯光
+scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+const dirLight = new THREE.DirectionalLight(0xffffff, 3);
+dirLight.position.set(3, 5, 3);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.width = 1024;
+dirLight.shadow.mapSize.height = 1024;
+dirLight.shadow.camera.near = 0.5;
+dirLight.shadow.camera.far = 20;
+dirLight.shadow.camera.left = -5;
+dirLight.shadow.camera.right = 5;
+dirLight.shadow.camera.top = 5;
+dirLight.shadow.camera.bottom = -5;
+scene.add(dirLight);
+
+// 点光源氛围
+const ptLight = new THREE.PointLight(0x3b82f6, 5, 8);
+ptLight.position.set(0, 2, -2);
+scene.add(ptLight);
+
+// 地面
+const floor = new THREE.Mesh(
+  new THREE.CircleGeometry(3, 64),
+  new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.6, metalness: 0.2 })
+);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -0.5;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// 展台
+const pedestal = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.9, 1.0, 0.3, 64),
+  new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.4, metalness: 0.5 })
+);
+pedestal.position.y = -0.35;
+pedestal.castShadow = true;
+pedestal.receiveShadow = true;
+scene.add(pedestal);
+
+const pedestalTop = new THREE.Mesh(
+  new THREE.CylinderGeometry(0.85, 0.9, 0.15, 64),
+  new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.3, metalness: 0.6 })
+);
+pedestalTop.position.y = -0.1;
+pedestalTop.castShadow = true;
+scene.add(pedestalTop);
+
+// 网格
+const gridHelper = new THREE.GridHelper(8, 20, 0x444444, 0x333333);
+gridHelper.position.y = -0.49;
+scene.add(gridHelper);
+
+// 产品组
+const productGroup = new THREE.Group();
+scene.add(productGroup);
+
+// 产品构建函数
+const productBuilders = {
+  watch: (color) => {
+    const g = new THREE.Group();
+    // 表盘
+    const face = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.4, 0.4, 0.15, 64),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.2, metalness: 0.8 })
+    );
+    face.position.y = 0;
+    face.castShadow = true;
+    g.add(face);
+    // 表带
+    const band1 = new THREE.Mesh(
+      new THREE.TorusGeometry(0.4, 0.08, 8, 32, Math.PI),
+      new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.5, metalness: 0.3 })
+    );
+    band1.rotation.x = Math.PI / 2;
+    band1.position.y = 0.1;
+    g.add(band1);
+    const band2 = new THREE.Mesh(
+      new THREE.TorusGeometry(0.4, 0.08, 8, 32, Math.PI),
+      new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.5, metalness: 0.3 })
+    );
+    band2.rotation.x = -Math.PI / 2;
+    band2.position.y = -0.1;
+    g.add(band2);
+    g.position.y = 0.2;
+    return g;
+  },
+  headphones: (color) => {
+    const g = new THREE.Group();
+    const band = new THREE.Mesh(
+      new THREE.TorusGeometry(0.45, 0.06, 8, 32, Math.PI),
+      new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.4, metalness: 0.5 })
+    );
+    band.rotation.z = Math.PI;
+    band.position.y = 0.35;
+    g.add(band);
+    const cupL = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.18, 0.25, 32),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.3, metalness: 0.6 })
+    );
+    cupL.position.set(-0.4, 0, 0);
+    cupL.castShadow = true;
+    g.add(cupL);
+    const cupR = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.18, 0.25, 32),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.3, metalness: 0.6 })
+    );
+    cupR.position.set(0.4, 0, 0);
+    cupR.castShadow = true;
+    g.add(cupR);
+    g.position.y = 0.2;
+    return g;
+  },
+  speaker: (color) => {
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(0.6, 0.9, 0.5),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.3, metalness: 0.4 })
+    );
+    body.castShadow = true;
+    g.add(body);
+    const driver = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.18, 0.05, 32),
+      new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5, metalness: 0.8 })
+    );
+    driver.position.z = 0.26;
+    driver.castShadow = true;
+    g.add(driver);
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.2, 0.03, 8, 32),
+      new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.2, metalness: 0.9 })
+    );
+    ring.position.z = 0.26;
+    g.add(ring);
+    g.position.y = 0.3;
+    return g;
+  },
+  bottle: (color) => {
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.25, 0.3, 0.7, 32),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.15, metalness: 0.1, opacity: 0.85, transparent: true })
+    );
+    body.castShadow = true;
+    g.add(body);
+    const neck = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.1, 0.15, 0.2, 32),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.15, metalness: 0.1, opacity: 0.85, transparent: true })
+    );
+    neck.position.y = 0.45;
+    g.add(neck);
+    const cap = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.12, 0.12, 0.1, 32),
+      new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.2, metalness: 0.9 })
+    );
+    cap.position.y = 0.6;
+    cap.castShadow = true;
+    g.add(cap);
+    g.position.y = 0.3;
+    return g;
+  }
+};
+
+let currentProduct = 'watch';
+let currentColor = '#3b82f6';
+
+function updateProduct() {
+  productGroup.clear();
+  const builder = productBuilders[currentProduct];
+  if (builder) {
+    const g = builder(currentColor);
+    productGroup.add(g);
+  }
+  updateWireframe();
+}
+updateProduct();
+
+// 粒子
+const particlesGeo = new THREE.BufferGeometry();
+const particlesCount = 150;
+const pPositions = new Float32Array(particlesCount * 3);
+for (let i = 0; i < particlesCount; i++) {
+  pPositions[i * 3] = (Math.random() - 0.5) * 5;
+  pPositions[i * 3 + 1] = Math.random() * 3 + 0.5;
+  pPositions[i * 3 + 2] = (Math.random() - 0.5) * 5;
+}
+particlesGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+const particles = new THREE.Points(particlesGeo, new THREE.PointsMaterial({
+  color: 0x3b82f6, size: 0.02, transparent: true, opacity: 0.6,
+}));
+scene.add(particles);
+
+// 控件
+document.querySelectorAll('.info-bar button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.info-bar button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentProduct = btn.dataset.product;
+    updateProduct();
+  });
+});
+
+document.querySelectorAll('.color-dot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+    dot.classList.add('active');
+    currentColor = dot.dataset.color;
+    updateProduct();
+    ptLight.color.set(currentColor);
+    particles.material.color.set(currentColor);
+  });
+});
+
+document.getElementById('autoRotate').addEventListener('change', e => { controls.autoRotate = e.target.checked; });
+document.getElementById('showGrid').addEventListener('change', e => { gridHelper.visible = e.target.checked; });
+
+function updateWireframe() {
+  const wf = document.getElementById('showWireframe').checked;
+  productGroup.traverse(child => {
+    if (child.isMesh && child.material.isMeshStandardMaterial) {
+      child.material.wireframe = wf;
+    }
+  });
+}
+document.getElementById('showWireframe').addEventListener('change', updateWireframe);
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  productGroup.rotation.y += 0.003;
+  particles.rotation.y += 0.0005;
+  particles.rotation.x += 0.0003;
+  renderer.render(scene, camera);
+}
+animate();
+
+new ResizeObserver(() => {
+  const nw = wrap.clientWidth;
+  renderer.setSize(nw, h);
+  camera.aspect = nw / h;
+  camera.updateProjectionMatrix();
+}).observe(wrap);
+</script>
+</body>
+</html>

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第1课：WebGL 渲染管线与第一个三角形</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  /* 本课特有样式 */
+  .pipeline-diagram {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    margin: 1.2rem 0; font-size: 0.82rem;
+  }
+  .pipeline-step {
+    flex: 1; min-width: 100px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 0.7rem 0.6rem;
+    text-align: center;
+  }
+  .pipeline-step .num {
+    display: inline-block; width: 1.6rem; height: 1.6rem;
+    line-height: 1.6rem; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font-weight: 700; font-size: 0.8rem;
+    margin-bottom: 0.3rem;
+  }
+  .pipeline-step .title { font-weight: 650; }
+  .pipeline-step .sub { font-size: 0.78rem; color: var(--text-muted); }
+  .pipeline-arrow {
+    display: flex; align-items: center;
+    font-size: 1.3rem; color: var(--text-muted);
+  }
+
+  .demo-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin: 1rem 0;
+  }
+  @media (max-width: 700px) {
+    .demo-row { grid-template-columns: 1fr; }
+  }
+
+  .code-panel {
+    background: #1e1e1e; color: #d4d4d4;
+    border-radius: var(--radius); overflow: hidden;
+  }
+  .code-panel .header {
+    background: #333; padding: 0.35rem 1rem;
+    font-size: 0.78rem; color: #aaa;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .code-panel pre {
+    margin: 0; border-radius: 0; background: transparent;
+  }
+
+  .canvas-panel {
+    background: #0a0a0a; border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center;
+    min-height: 280px; position: relative; overflow: hidden;
+  }
+  .canvas-panel canvas { display: block; }
+  .canvas-panel .label {
+    position: absolute; bottom: 0.5rem; right: 0.7rem;
+    font-size: 0.7rem; color: #555; font-family: var(--mono);
+  }
+
+  .glossary-term {
+    color: var(--accent); font-weight: 600; cursor: help;
+    border-bottom: 1px dotted var(--accent);
+  }
+  .glossary-term:hover { color: var(--accent-hover); }
+
+  .tab-bar {
+    display: flex; gap: 0; margin: 0.8rem 0 0; border-bottom: 2px solid var(--border);
+  }
+  .tab-bar button {
+    padding: 0.4rem 1rem; border: none; background: none;
+    cursor: pointer; font-size: 0.88rem; font-weight: 500;
+    color: var(--text-muted); border-bottom: 2px solid transparent;
+    margin-bottom: -2px; transition: all 0.15s;
+  }
+  .tab-bar button.active {
+    color: var(--accent); border-bottom-color: var(--accent);
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+
+<div class="lesson-meta">
+  <span class="level-badge">Lv1 · Day1</span>
+  <span>WebGL 原生基础</span>
+  <span>⏱ 约 45 分钟</span>
+</div>
+
+<h1>第1课：WebGL 渲染管线与第一个三角形</h1>
+
+<p>
+  本课是整个 Three.js 学习之旅的<strong>基石</strong>。在调用 <code>new THREE.Mesh()</code> 之前，你需要理解 GPU 到底在做什么。
+  我们会手写原生 WebGL，画出人生第一个 GPU 渲染的三角形——这是所有 3D 场景的起点。
+</p>
+
+<div class="callout">
+  <strong>💡 为什么从原生 WebGL 开始？</strong><br>
+  Three.js 是对 WebGL 的封装。理解底层后，你排错时不会只看到黑屏，而是知道"着色器编译失败"还是"缓冲区没绑定"。这也是面试中<strong>渲染管线</strong>的高频考点。
+</div>
+
+<!-- ====== 渲染管线图解 ====== -->
+<h2>1. WebGL 渲染管线：一张图看懂</h2>
+
+<p>GPU 渲染一个三角形，数据从 JavaScript 出发，经过 5 个阶段到达屏幕：</p>
+
+<div class="pipeline-diagram">
+  <div class="pipeline-step">
+    <div class="num">1</div>
+    <div class="title">顶点数据</div>
+    <div class="sub">JS 数组 → GPU 缓冲区</div>
+  </div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step">
+    <div class="num">2</div>
+    <div class="title">顶点着色器</div>
+    <div class="sub">逐顶点：计算位置</div>
+  </div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step">
+    <div class="num">3</div>
+    <div class="title">图元装配</div>
+    <div class="sub">三点 → 三角形</div>
+  </div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step">
+    <div class="num">4</div>
+    <div class="title">光栅化</div>
+    <div class="sub">三角形 → 像素</div>
+  </div>
+  <div class="pipeline-arrow">→</div>
+  <div class="pipeline-step">
+    <div class="num">5</div>
+    <div class="title">片元着色器</div>
+    <div class="sub">逐像素：上色</div>
+  </div>
+</div>
+
+<table>
+  <tr><th>阶段</th><th>做什么</th><th>类比</th></tr>
+  <tr><td>① 顶点数据</td><td>JS 把顶点坐标、颜色等数据传入 GPU 缓冲区</td><td>把面粉和水准备好</td></tr>
+  <tr><td>② 顶点着色器</td><td>GLSL 程序，对每个顶点执行一次，计算它在屏幕上的位置</td><td>捏出饺子的形状</td></tr>
+  <tr><td>③ 图元装配</td><td>把顶点按指定方式连接成基本图形（点、线、三角形）</td><td>把饺子摆好</td></tr>
+  <tr><td>④ 光栅化</td><td>将三角形转换为屏幕上的像素片段（fragment）</td><td>决定每个饺子占几个格子</td></tr>
+  <tr><td>⑤ 片元着色器</td><td>GLSL 程序，对每个像素执行一次，决定该像素的颜色</td><td>给每个饺子上色</td></tr>
+</table>
+
+<div class="callout warn">
+  <strong>⚠️ 关键认知：</strong>顶点着色器决定"形状在哪"，片元着色器决定"像素什么颜色"。这两个着色器是你<strong>必须自己写</strong>的（GPU 不会帮你做），其余步骤 GPU 自动完成。
+</div>
+
+<!-- ====== 第一个 WebGL 程序 ====== -->
+<h2>2. 第一个 WebGL 程序：绘制三角形</h2>
+
+<p>下方是完整的 WebGL 代码，绘制一个彩色三角形。左边是源码，右边是实时渲染结果。</p>
+
+<div class="demo-row">
+  <div class="code-panel">
+    <div class="header"><span>main.js</span><span style="cursor:pointer" onclick="resetTriangleDemo()">🔄 重置</span></div>
+    <pre><code id="triangleCode">// 1. 获取 Canvas & WebGL 上下文
+const canvas = document.getElementById('triCanvas');
+const gl = canvas.getContext('webgl');
+
+// 2. 顶点着色器 GLSL
+const vsSource = `
+  attribute vec4 a_position;
+  void main() {
+    gl_Position = a_position;
+  }`;
+
+// 3. 片元着色器 GLSL
+const fsSource = `
+  precision mediump float;
+  uniform vec4 u_color;
+  void main() {
+    gl_FragColor = u_color;
+  }`;
+
+// 4. 编译着色器
+function compileShader(gl, source, type) {
+  const shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    console.error(gl.getShaderInfoLog(shader));
+  }
+  return shader;
+}
+
+// 5. 链接程序
+const program = gl.createProgram();
+gl.attachShader(program, compileShader(gl, vsSource, gl.VERTEX_SHADER));
+gl.attachShader(program, compileShader(gl, fsSource, gl.FRAGMENT_SHADER));
+gl.linkProgram(program);
+gl.useProgram(program);
+
+// 6. 创建缓冲区 & 写入顶点数据
+const vertices = new Float32Array([
+   0.0,  0.5,  // 顶点 1 (上)
+  -0.5, -0.5,  // 顶点 2 (左下)
+   0.5, -0.5   // 顶点 3 (右下)
+]);
+const buffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+// 7. 启用顶点属性
+const aPos = gl.getAttribLocation(program, 'a_position');
+gl.enableVertexAttribArray(aPos);
+gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+// 8. 设置颜色 & 绘制
+const uColor = gl.getUniformLocation(program, 'u_color');
+gl.uniform4f(uColor, 0.2, 0.6, 1.0, 1.0); // 蓝色
+gl.clearColor(0.06, 0.06, 0.12, 1.0);
+gl.clear(gl.COLOR_BUFFER_BIT);
+gl.drawArrays(gl.TRIANGLES, 0, 3);</code></pre>
+  </div>
+  <div class="canvas-panel">
+    <canvas id="triCanvas" width="400" height="300"></canvas>
+    <div class="label">实时渲染</div>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>🔍 逐行阅读指南：</strong>代码中的 8 个步骤，每一个都对应渲染管线的一个阶段。试着改一下 <code>gl.uniform4f</code> 的第 2-4 个参数（R, G, B），看看三角形颜色变化。
+</div>
+
+<!-- ====== 交互式调参 ====== -->
+<h2>3. 动手实验：修改参数观察变化</h2>
+
+<p>拖动滑块改变三角形颜色，或修改顶点坐标，实时观察渲染结果变化：</p>
+
+<div class="demo-row">
+  <div class="canvas-panel" style="min-height: 300px;">
+    <canvas id="expCanvas" width="400" height="300"></canvas>
+    <div class="label">实验画布</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:0.8rem;">
+    <div>
+      <label style="font-weight:600;font-size:0.9rem;">🔴 R: <span id="rVal">0.2</span></label>
+      <input type="range" id="rSlider" min="0" max="1" step="0.01" value="0.2" style="width:100%">
+    </div>
+    <div>
+      <label style="font-weight:600;font-size:0.9rem;">🟢 G: <span id="gVal">0.6</span></label>
+      <input type="range" id="gSlider" min="0" max="1" step="0.01" value="0.6" style="width:100%">
+    </div>
+    <div>
+      <label style="font-weight:600;font-size:0.9rem;">🔵 B: <span id="bVal">1.0</span></label>
+      <input type="range" id="bSlider" min="0" max="1" step="0.01" value="1.0" style="width:100%">
+    </div>
+    <button id="randomBtn" style="padding:0.5rem 1rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);cursor:pointer;font-size:0.9rem;">
+      🎲 随机颜色
+    </button>
+    <button id="shapeBtn" style="padding:0.5rem 1rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);cursor:pointer;font-size:0.9rem;">
+      🔺 切换形状
+    </button>
+  </div>
+</div>
+
+<!-- ====== GLSL 语法要点 ====== -->
+<h2>4. GLSL 着色器语言速览</h2>
+
+<p>GLSL（OpenGL Shading Language）是运行在 GPU 上的 C 语言变体。以下是它与 JavaScript 的关键区别：</p>
+
+<table>
+  <tr><th>特性</th><th>JavaScript</th><th>GLSL</th></tr>
+  <tr><td>变量声明</td><td><code>let x = 1;</code></td><td><code>float x = 1.0;</code> — 必须声明类型</td></tr>
+  <tr><td>数字</td><td><code>1</code> 自动整数/浮点</td><td><code>1</code> 是 int，<code>1.0</code> 是 float，<strong>必须严格区分</strong></td></tr>
+  <tr><td>向量类型</td><td>无</td><td><code>vec2(x,y)</code> <code>vec3(x,y,z)</code> <code>vec4(x,y,z,w)</code></td></tr>
+  <tr><td>矩阵类型</td><td>无</td><td><code>mat2</code> <code>mat3</code> <code>mat4</code></td></tr>
+  <tr><td>精度声明</td><td>不需要</td><td>片元着色器必须声明：<code>precision mediump float;</code></td></tr>
+  <tr><td>保留字</td><td><code>let const var</code></td><td><code>attribute varying uniform</code>（限定符，不是声明符）</td></tr>
+</table>
+
+<div class="callout danger">
+  <strong>🚫 高频踩坑：</strong>在 GLSL 中写 <code>let x = 1;</code> 或 <code>1 + 0.5</code>（整数和浮点数混用）会导致编译失败。GLSL 不能用 <code>let</code>、<code>console.log</code>、模板字符串等 JS 特性。
+</div>
+
+<!-- ====== 坐标系统 ====== -->
+<h2>5. NDC 坐标系统</h2>
+
+<p>WebGL 使用的是 <strong>归一化设备坐标（NDC，Normalized Device Coordinates）</strong>：</p>
+
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;text-align:center;margin:1rem 0;">
+  <svg width="280" height="280" viewBox="-1.2 -1.2 2.4 2.4">
+    <!-- 坐标轴 -->
+    <line x1="-1.1" y1="0" x2="1.1" y2="0" stroke="#ccc" stroke-width="0.02"/>
+    <line x1="0" y1="-1.1" x2="0" y2="1.1" stroke="#ccc" stroke-width="0.02"/>
+    <!-- 标签 -->
+    <text x="1.15" y="0.04" font-size="0.12" fill="#888">X</text>
+    <text x="0.02" y="1.18" font-size="0.12" fill="#888">Y</text>
+    <text x="0.85" y="-0.04" font-size="0.1" fill="#888">(1,0)</text>
+    <text x="-1.05" y="-0.04" font-size="0.1" fill="#888">(-1,0)</text>
+    <text x="0.02" y="0.95" font-size="0.1" fill="#888">(0,1)</text>
+    <text x="0.02" y="-0.75" font-size="0.1" fill="#888">(0,-1)</text>
+    <!-- 三角形 -->
+    <polygon points="0,0.5 -0.5,-0.5 0.5,-0.5" fill="rgba(37,99,235,0.3)" stroke="#2563eb" stroke-width="0.03"/>
+    <circle cx="0" cy="0.5" r="0.04" fill="#2563eb"/>
+    <circle cx="-0.5" cy="-0.5" r="0.04" fill="#2563eb"/>
+    <circle cx="0.5" cy="-0.5" r="0.04" fill="#2563eb"/>
+  </svg>
+  <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem;">
+    X 轴：左 -1 → 右 +1 &nbsp;|&nbsp; Y 轴：下 -1 → 上 +1 &nbsp;|&nbsp; 超出范围 = 被裁剪消失
+  </div>
+</div>
+
+<div class="callout warn">
+  <strong>⚠️ 常见错误：</strong>顶点坐标超出 [-1, 1] 范围后，图形会被裁剪，表现为"画布上什么都没有"。如果三角形不显示，先检查顶点坐标是否在 NDC 范围内。
+</div>
+
+<!-- ====== 测验 ====== -->
+<h2>6. 知识检查</h2>
+
+<div class="quiz-block" id="quiz1">
+  <h4>📝 测验</h4>
+
+  <div class="quiz-question">Q1: 顶点着色器对每个____执行一次，片元着色器对每个____执行一次。</div>
+  <div class="quiz-options">
+    <label><input type="radio" name="q1" value="a">A. 像素 / 顶点</label>
+    <label><input type="radio" name="q1" value="b">B. 顶点 / 像素</label>
+    <label><input type="radio" name="q1" value="c">C. 三角形 / 帧</label>
+    <label><input type="radio" name="q1" value="d">D. 帧 / 三角形</label>
+  </div>
+  <div class="quiz-feedback" id="q1Feedback"></div>
+
+  <div class="quiz-question">Q2: 以下哪个 GLSL 代码片段是正确的？</div>
+  <div class="quiz-options">
+    <label><input type="radio" name="q2" value="a">A. let color = vec3(1.0, 0, 0.5);</label>
+    <label><input type="radio" name="q2" value="b">B. vec3 color = vec3(1.0, 1.0, 1.0);</label>
+    <label><input type="radio" name="q2" value="c">C. const color = vec3(1.0, 0.5, 0.0);</label>
+    <label><input type="radio" name="q2" value="d">D. var color = vec3(1.0, 0.5, 0.0);</label>
+  </div>
+  <div class="quiz-feedback" id="q2Feedback"></div>
+
+  <div class="quiz-question">Q3: NDC 坐标中，点 (0, 0) 位于屏幕的什么位置？</div>
+  <div class="quiz-options">
+    <label><input type="radio" name="q3" value="a">A. 左上角</label>
+    <label><input type="radio" name="q3" value="b">B. 右下角</label>
+    <label><input type="radio" name="q3" value="c">C. 正中心</label>
+    <label><input type="radio" name="q3" value="d">D. 左下角</label>
+  </div>
+  <div class="quiz-feedback" id="q3Feedback"></div>
+
+  <button id="checkQuiz" style="margin-top:1rem;padding:0.5rem 1.5rem;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-size:0.9rem;font-weight:600;">
+    检查答案
+  </button>
+</div>
+
+<!-- ====== 动手练习 ====== -->
+<h2>7. 课后练习</h2>
+
+<ol class="steps">
+  <li><strong>修改三角形为正方形</strong>：用两个三角形拼成正方形（提示：需要 6 个顶点）</li>
+  <li><strong>渐变色三角形</strong>：给每个顶点传递不同颜色，观察 GPU 如何自动插值</li>
+  <li><strong>画一个彩色五角星</strong>：计算 5 个顶点的坐标，用三角形扇绘制</li>
+  <li><strong>阅读官方文档</strong>：<a href="https://threejs.org/docs/index.html#manual/zh/introduction" target="_blank">Three.js 中文文档 - 介绍</a></li>
+</ol>
+
+<!-- ====== 页脚 ====== -->
+<div class="lesson-footer">
+  <nav>
+    <span></span>
+    <a href="0002-vertex-shader-transform.html">第2课：顶点着色器与矩阵变换 →</a>
+  </nav>
+  <p>
+    <strong>📖 推荐阅读：</strong>《WebGL 编程指南》第1-2章（WebGL 概述与着色器入门）<br>
+    <strong>🎥 推荐视频：</strong>B站 李超「WebGL原生零基础入门」第1-3集<br>
+    <strong>💬 有疑问？</strong>随时向 AI 助教提问，不要带着疑惑进入下一课。
+  </p>
+  <p style="margin-top:1rem;color:var(--text-muted);">
+    ← <a href="../STUDY-PLAN.md">返回学习计划</a> ·
+    <a href="../RESOURCES.md">学习资源</a>
+  </p>
+</div>
+
+<!-- ====== 脚本 ====== -->
+<script>
+// ============ 三角形 Demo ============
+function initTriangleDemo() {
+  const canvas = document.getElementById('triCanvas');
+  canvas.width = canvas.clientWidth || 400;
+  canvas.height = canvas.clientHeight || 300;
+  const gl = canvas.getContext('webgl');
+  if (!gl) {
+    canvas.parentElement.innerHTML = '<p style="color:#dc2626;padding:2rem;">⚠️ 你的浏览器不支持 WebGL，请使用 Chrome/Edge/Firefox</p>';
+    return;
+  }
+
+  const vsSource = `
+    attribute vec4 a_position;
+    void main() {
+      gl_Position = a_position;
+    }`;
+
+  const fsSource = `
+    precision mediump float;
+    uniform vec4 u_color;
+    void main() {
+      gl_FragColor = u_color;
+    }`;
+
+  function compileShader(gl, source, type) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      console.error('Shader error:', gl.getShaderInfoLog(shader));
+    }
+    return shader;
+  }
+
+  const program = gl.createProgram();
+  gl.attachShader(program, compileShader(gl, vsSource, gl.VERTEX_SHADER));
+  gl.attachShader(program, compileShader(gl, fsSource, gl.FRAGMENT_SHADER));
+  gl.linkProgram(program);
+  gl.useProgram(program);
+
+  const vertices = new Float32Array([
+     0.0,  0.5,
+    -0.5, -0.5,
+     0.5, -0.5
+  ]);
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+  const aPos = gl.getAttribLocation(program, 'a_position');
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+  const uColor = gl.getUniformLocation(program, 'u_color');
+  gl.uniform4f(uColor, 0.2, 0.6, 1.0, 1.0);
+  gl.clearColor(0.06, 0.06, 0.12, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+  // 保存引用
+  canvas._gl = gl;
+  canvas._uColor = uColor;
+  canvas._program = program;
+  canvas._vsSource = vsSource;
+  canvas._fsSource = fsSource;
+}
+
+function resetTriangleDemo() {
+  const canvas = document.getElementById('triCanvas');
+  const gl = canvas._gl;
+  if (!gl) return;
+  gl.uniform4f(canvas._uColor, 0.2, 0.6, 1.0, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+// ============ 实验画布 ============
+function initExperimentCanvas() {
+  const canvas = document.getElementById('expCanvas');
+  canvas.width = canvas.clientWidth || 400;
+  canvas.height = canvas.clientHeight || 300;
+  const gl = canvas.getContext('webgl');
+  if (!gl) return;
+
+  const vsSource = `
+    attribute vec4 a_position;
+    attribute vec4 a_color;
+    varying vec4 v_color;
+    void main() {
+      gl_Position = a_position;
+      v_color = a_color;
+    }`;
+
+  const fsSource = `
+    precision mediump float;
+    varying vec4 v_color;
+    void main() {
+      gl_FragColor = v_color;
+    }`;
+
+  function compileShader(gl, source, type) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    return shader;
+  }
+
+  const program = gl.createProgram();
+  gl.attachShader(program, compileShader(gl, vsSource, gl.VERTEX_SHADER));
+  gl.attachShader(program, compileShader(gl, fsSource, gl.FRAGMENT_SHADER));
+  gl.linkProgram(program);
+  gl.useProgram(program);
+
+  // 彩色三角形 (每个顶点不同颜色)
+  const vertices = new Float32Array([
+     0.0,  0.5,  1.0, 0.0, 0.0,  // 顶: 红
+    -0.5, -0.5,  0.0, 1.0, 0.0,  // 左下: 绿
+     0.5, -0.5,  0.0, 0.0, 1.0   // 右下: 蓝
+  ]);
+  const stride = 5 * 4; // 5 个 float × 4 字节
+
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+  const aPos = gl.getAttribLocation(program, 'a_position');
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, stride, 0);
+
+  const aColor = gl.getAttribLocation(program, 'a_color');
+  gl.enableVertexAttribArray(aColor);
+  gl.vertexAttribPointer(aColor, 3, gl.FLOAT, false, stride, 2 * 4);
+
+  gl.clearColor(0.06, 0.06, 0.12, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+  // 保存引用
+  canvas._gl = gl;
+  canvas._program = program;
+  canvas._aColor = aColor;
+  canvas._buffer = buffer;
+  canvas._vertices = new Float32Array(vertices);
+  canvas._shapeMode = 0;
+}
+
+// 滑块交互
+document.getElementById('rSlider').addEventListener('input', updateExpColor);
+document.getElementById('gSlider').addEventListener('input', updateExpColor);
+document.getElementById('bSlider').addEventListener('input', updateExpColor);
+
+function updateExpColor() {
+  const r = +document.getElementById('rSlider').value;
+  const g = +document.getElementById('gSlider').value;
+  const b = +document.getElementById('bSlider').value;
+  document.getElementById('rVal').textContent = r.toFixed(2);
+  document.getElementById('gVal').textContent = g.toFixed(2);
+  document.getElementById('bVal').textContent = b.toFixed(2);
+
+  const canvas = document.getElementById('expCanvas');
+  const gl = canvas._gl;
+  if (!gl) return;
+
+  // 更新顶点颜色
+  const v = canvas._vertices;
+  v[2] = r; v[3] = g; v[4] = b;
+  v[7] = r; v[8] = g; v[9] = b;
+  v[12] = r; v[13] = g; v[14] = b;
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, canvas._buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, v, gl.STATIC_DRAW);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+document.getElementById('randomBtn').addEventListener('click', () => {
+  document.getElementById('rSlider').value = Math.random().toFixed(2);
+  document.getElementById('gSlider').value = Math.random().toFixed(2);
+  document.getElementById('bSlider').value = Math.random().toFixed(2);
+  updateExpColor();
+});
+
+document.getElementById('shapeBtn').addEventListener('click', () => {
+  const canvas = document.getElementById('expCanvas');
+  const gl = canvas._gl;
+  if (!gl) return;
+
+  canvas._shapeMode = (canvas._shapeMode + 1) % 3;
+  let verts;
+  if (canvas._shapeMode === 0) {
+    // 三角形
+    verts = new Float32Array([
+       0.0,  0.5,  1.0, 0.0, 0.0,
+      -0.5, -0.5,  0.0, 1.0, 0.0,
+       0.5, -0.5,  0.0, 0.0, 1.0
+    ]);
+  } else if (canvas._shapeMode === 1) {
+    // 正方形 (两个三角形)
+    const s = 0.45;
+    verts = new Float32Array([
+      -s,  s, 1.0, 0.2, 0.2,  // 左上
+      -s, -s, 0.2, 1.0, 0.2,  // 左下
+       s,  s, 0.2, 0.2, 1.0,  // 右上
+      -s, -s, 0.2, 1.0, 0.2,  // 左下
+       s, -s, 1.0, 0.2, 0.2,  // 右下
+       s,  s, 0.2, 0.2, 1.0   // 右上
+    ]);
+  } else {
+    // 五角星 (简化)
+    verts = new Float32Array([
+       0.0,  0.6, 1.0, 0.8, 0.0,
+      -0.2,  0.15, 1.0, 0.2, 0.0,
+       0.6,  0.15, 0.0, 1.0, 0.8,
+       0.0, -0.6, 0.2, 0.2, 1.0,
+       0.6,  0.15, 0.0, 1.0, 0.8,
+      -0.6,  0.15, 0.8, 0.0, 1.0,
+    ]);
+  }
+
+  canvas._vertices = new Float32Array(verts);
+  gl.bindBuffer(gl.ARRAY_BUFFER, canvas._buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, canvas._vertices, gl.STATIC_DRAW);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.drawArrays(gl.TRIANGLES, 0, verts.length / 5);
+});
+
+// ============ 测验 ============
+document.getElementById('checkQuiz').addEventListener('click', () => {
+  const answers = { q1: 'b', q2: 'b', q3: 'c' };
+  Object.keys(answers).forEach(q => {
+    const selected = document.querySelector(`input[name="${q}"]:checked`);
+    const fb = document.getElementById(q + 'Feedback');
+    if (!selected) {
+      fb.textContent = '请选择一个答案';
+      fb.className = 'quiz-feedback wrong';
+      return;
+    }
+    if (selected.value === answers[q]) {
+      fb.textContent = '✅ 正确！';
+      fb.className = 'quiz-feedback correct';
+    } else {
+      fb.textContent = '❌ 不对，再想想。';
+      fb.className = 'quiz-feedback wrong';
+    }
+  });
+});
+
+// 初始化
+initTriangleDemo();
+initExperimentCanvas();
+</script>
+</body>
+</html>

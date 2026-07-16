@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo 04：鼠标控制视角 — 让场景可交互</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .demo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  @media (max-width: 700px) { .demo-row { grid-template-columns: 1fr; } }
+  .canvas-wrap {
+    background: #0a0a12; border-radius: var(--radius); min-height: 380px;
+    position: relative; overflow: hidden; cursor: grab;
+  }
+  .canvas-wrap:active { cursor: grabbing; }
+  .canvas-wrap .badge {
+    position: absolute; top: 0.6rem; right: 0.8rem; z-index: 2;
+    background: #059669; color: #fff; font-size: 0.7rem;
+    padding: 0.15rem 0.5rem; border-radius: 10px; font-weight: 600;
+  }
+  .canvas-wrap .hint {
+    position: absolute; bottom: 0.8rem; left: 50%; transform: translateX(-50%); z-index: 2;
+    background: rgba(0,0,0,0.7); color: #aaa; font-size: 0.75rem;
+    padding: 0.3rem 0.8rem; border-radius: 12px;
+    pointer-events: none;
+  }
+  .control-table td:first-child { white-space: nowrap; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="lesson-meta">
+  <span class="level-badge">Lv1 · Demo 4/6</span>
+  <span>Three.js 快速上手</span>
+  <span>⏱ 约 20 分钟</span>
+</div>
+
+<h1>Demo 04：鼠标控制视角 — 让场景可交互</h1>
+
+<p>
+  一个静止的3D场景很无聊。加上 <strong>OrbitControls（轨道控制器）</strong>，用户就能用鼠标拖拽旋转、滚轮缩放、右键平移——就像在玩3D游戏一样。
+</p>
+
+<div class="callout success">
+  <strong>🎯 本课目标：</strong>掌握 OrbitControls 的引入和配置，知道如何让用户自由探索3D场景。
+</div>
+
+<!-- ====== 主 Demo ====== -->
+<h2>🎮 试试看：拖拽、滚轮、右键</h2>
+
+<div class="canvas-wrap" id="mainWrap">
+  <div class="badge">🖱️ 鼠标交互</div>
+  <div class="hint">🖱️ 左键拖拽旋转 · 滚轮缩放 · 右键平移</div>
+</div>
+
+<div class="demo-row" style="margin-top:1rem;">
+  <div style="display:flex;flex-direction:column;gap:0.5rem;">
+    <div style="font-weight:650;font-size:0.9rem;">⚙️ 控制器设置</div>
+    <label style="font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;">
+      <input type="checkbox" id="autoRotate" checked> 自动旋转
+    </label>
+    <label style="font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;">
+      <input type="checkbox" id="enableDamp" checked> 阻尼惯性
+    </label>
+    <label style="font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;">
+      旋转速度：<input type="range" id="rotSpeed" min="0.1" max="3" step="0.1" value="1" style="flex:1;">
+      <span id="rotSpeedVal" style="font-family:var(--mono);font-size:0.8rem;">1.0</span>
+    </label>
+    <label style="font-size:0.85rem;display:flex;align-items:center;gap:0.5rem;">
+      缩放范围：<input type="range" id="zoomRange" min="1" max="20" step="0.5" value="10" style="flex:1;">
+      <span id="zoomRangeVal" style="font-family:var(--mono);font-size:0.8rem;">1-10</span>
+    </label>
+  </div>
+  <div class="callout" style="font-size:0.85rem;">
+    <strong>🔑 关键代码（只需 3 行）：</strong>
+    <pre style="margin:0.4rem 0;font-size:0.78rem;"><code>import { OrbitControls } from 'three/addons/...';
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; // 惯性效果</code></pre>
+    <p style="margin:0.4rem 0;font-size:0.82rem;">然后在渲染循环中加一行 <code>controls.update()</code> 即可。</p>
+  </div>
+</div>
+
+<!-- ====== 场景探索 ====== -->
+<h2>🎮 场景探索：寻找隐藏的物体</h2>
+<p>下面场景中散布着不同颜色的几何体，用鼠标旋转视角，找到所有 6 个物体：</p>
+
+<div class="canvas-wrap" id="exploreWrap" style="min-height:380px;">
+  <div class="badge">🔍 探索模式</div>
+  <div class="hint" id="foundHint">已找到：0 / 6</div>
+</div>
+
+<!-- ====== 核心概念 ====== -->
+<h2>📖 OrbitControls 核心操作</h2>
+
+<table class="control-table">
+  <tr><th>操作</th><th>鼠标</th><th>触屏</th><th>效果</th></tr>
+  <tr><td>旋转</td><td>左键拖拽</td><td>单指滑动</td><td>围绕目标旋转视角</td></tr>
+  <tr><td>缩放</td><td>滚轮</td><td>双指捏合</td><td>拉近/拉远</td></tr>
+  <tr><td>平移</td><td>右键拖拽</td><td>双指滑动</td><td>水平移动视野</td></tr>
+</table>
+
+<div class="callout">
+  <strong>🔑 常用配置：</strong>
+  <table style="margin:0.5rem 0;font-size:0.85rem;">
+    <tr><td><code>enableDamping = true</code></td><td>开启惯性，操作更丝滑</td></tr>
+    <tr><td><code>dampingFactor = 0.08</code></td><td>惯性系数（越小越"粘"）</td></tr>
+    <tr><td><code>minDistance / maxDistance</code></td><td>限制缩放范围</td></tr>
+    <tr><td><code>maxPolarAngle</code></td><td>限制垂直旋转角度（防止翻到底部）</td></tr>
+    <tr><td><code>autoRotate = true</code></td><td>自动旋转（展台常用）</td></tr>
+    <tr><td><code>target.set(x, y, z)</code></td><td>设置旋转中心点</td></tr>
+  </table>
+</div>
+
+<div class="callout warn">
+  <strong>⚠️ 常见错误：</strong>忘了在渲染循环中调用 <code>controls.update()</code>，导致阻尼和自动旋转不生效！
+</div>
+
+<!-- ====== 测验 ====== -->
+<h2>📝 小测验</h2>
+
+<div class="quiz-block" id="quiz1">
+  <div class="quiz-question">Q1: OrbitControls 的 target 属性控制的是什么？</div>
+  <div class="quiz-options">
+    <label><input type="radio" name="q1" value="a">A. 相机的位置</label>
+    <label><input type="radio" name="q1" value="b">B. 相机围绕旋转的中心点</label>
+    <label><input type="radio" name="q1" value="c">C. 渲染的目标帧率</label>
+    <label><input type="radio" name="q1" value="d">D. 鼠标的灵敏度</label>
+  </div>
+  <div class="quiz-feedback" id="q1fb"></div>
+
+  <button id="checkBtn" style="margin-top:0.8rem;padding:0.5rem 1.5rem;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-size:0.9rem;font-weight:600;">
+    检查答案
+  </button>
+</div>
+
+<!-- ====== 课后练习 ====== -->
+<h2>🏋️ 课后练习</h2>
+<ol class="steps">
+  <li><strong>创建展台效果</strong>：设置 autoRotate = true，让场景自动旋转展示</li>
+  <li><strong>限制视角</strong>：设置 maxPolarAngle 防止用户翻到底部</li>
+  <li><strong>编程控制视角</strong>：用按钮让相机飞到指定位置（修改 controls.target 和 camera.position）</li>
+</ol>
+
+<div class="lesson-footer">
+  <nav>
+    <a href="demo-03-lights.html">← Demo 03：光影魔法</a>
+    <a href="demo-05-materials.html">Demo 05：材质初探 →</a>
+  </nav>
+  <p>
+    <strong>📖 参考：</strong><a href="https://threejs.org/docs/index.html#examples/zh/controls/OrbitControls" target="_blank">OrbitControls 文档</a><br>
+    <strong>💬 有疑问？</strong>随时向 AI 助教提问！
+  </p>
+  <p style="margin-top:1rem;color:var(--text-muted);">
+    ← <a href="../STUDY-PLAN.md">返回学习计划</a>
+  </p>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ======== 主 Demo ========
+const mainWrap = document.getElementById('mainWrap');
+const mw = mainWrap.clientWidth || 500;
+const mh = 380;
+
+const mainScene = new THREE.Scene();
+const mainCamera = new THREE.PerspectiveCamera(50, mw / mh, 0.1, 100);
+mainCamera.position.set(3, 2.5, 5);
+
+const mainRenderer = new THREE.WebGLRenderer({ antialias: true });
+mainRenderer.setSize(mw, mh);
+mainRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+mainWrap.appendChild(mainRenderer.domElement);
+
+const mainControls = new OrbitControls(mainCamera, mainRenderer.domElement);
+mainControls.enableDamping = true;
+mainControls.dampingFactor = 0.08;
+mainControls.autoRotate = true;
+mainControls.autoRotateSpeed = 0.8;
+mainControls.target.set(0, 0, 0);
+
+mainScene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const mainDir = new THREE.DirectionalLight(0xffffff, 2);
+mainDir.position.set(3, 5, 3);
+mainScene.add(mainDir);
+mainScene.add(new THREE.GridHelper(5, 15, 0x333333, 0x222222));
+
+// 场景物件
+const geoList = [
+  { geo: new THREE.BoxGeometry(1, 1, 1), color: 0x3b82f6, pos: [0, 0, 0] },
+  { geo: new THREE.SphereGeometry(0.45, 32, 32), color: 0xef4444, pos: [1.2, 0.3, 0.8] },
+  { geo: new THREE.ConeGeometry(0.4, 0.9, 32), color: 0xf59e0b, pos: [-1.2, 0.2, -0.8] },
+  { geo: new THREE.TorusGeometry(0.4, 0.12, 16, 32), color: 0x8b5cf6, pos: [0.8, -0.3, -1.0] },
+  { geo: new THREE.CylinderGeometry(0.3, 0.3, 1, 32), color: 0x10b981, pos: [-1.0, 0.2, 0.9] },
+];
+geoList.forEach(({ geo, color, pos }) => {
+  const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color, roughness: 0.3, metalness: 0.2 }));
+  mesh.position.set(...pos);
+  mainScene.add(mesh);
+});
+
+// 控件绑定
+document.getElementById('autoRotate').addEventListener('change', e => { mainControls.autoRotate = e.target.checked; });
+document.getElementById('enableDamp').addEventListener('change', e => { mainControls.enableDamping = e.target.checked; });
+document.getElementById('rotSpeed').addEventListener('input', e => {
+  mainControls.autoRotateSpeed = +e.target.value;
+  document.getElementById('rotSpeedVal').textContent = (+e.target.value).toFixed(1);
+});
+document.getElementById('zoomRange').addEventListener('input', e => {
+  const v = +e.target.value;
+  mainControls.maxDistance = v;
+  document.getElementById('zoomRangeVal').textContent = '1-' + v.toFixed(0);
+});
+
+function mainAnimate() {
+  requestAnimationFrame(mainAnimate);
+  mainControls.update();
+  mainRenderer.render(mainScene, mainCamera);
+}
+mainAnimate();
+
+new ResizeObserver(() => {
+  const nw = mainWrap.clientWidth;
+  mainRenderer.setSize(nw, mh);
+  mainCamera.aspect = nw / mh;
+  mainCamera.updateProjectionMatrix();
+}).observe(mainWrap);
+
+// ======== 探索模式 ========
+const expWrap = document.getElementById('exploreWrap');
+const ew = expWrap.clientWidth || 500;
+const eh = 380;
+
+const expScene = new THREE.Scene();
+const expCamera = new THREE.PerspectiveCamera(50, ew / eh, 0.1, 100);
+expCamera.position.set(4, 3, 6);
+
+const expRenderer = new THREE.WebGLRenderer({ antialias: true });
+expRenderer.setSize(ew, eh);
+expRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+expWrap.appendChild(expRenderer.domElement);
+
+const expControls = new OrbitControls(expCamera, expRenderer.domElement);
+expControls.enableDamping = true;
+expControls.target.set(0, 0, 0);
+
+expScene.add(new THREE.AmbientLight(0xffffff, 0.5));
+const expDir = new THREE.DirectionalLight(0xffffff, 1.5);
+expDir.position.set(3, 5, 3);
+expScene.add(expDir);
+
+// 隐藏的物体
+const hiddenObjects = [
+  { geo: new THREE.BoxGeometry(0.5, 0.5, 0.5), color: 0xff4444, pos: [2, -1.5, 2], name: '红色立方体' },
+  { geo: new THREE.SphereGeometry(0.35, 32, 32), color: 0x44ff44, pos: [-2, -1.8, 1.5], name: '绿色球体' },
+  { geo: new THREE.ConeGeometry(0.3, 0.7, 16), color: 0x4444ff, pos: [1.5, 1.8, -2], name: '蓝色圆锥' },
+  { geo: new THREE.TorusGeometry(0.3, 0.1, 8, 16), color: 0xff44ff, pos: [-2.5, 1.5, -1.5], name: '紫色圆环' },
+  { geo: new THREE.CylinderGeometry(0.2, 0.2, 0.7, 16), color: 0xffff44, pos: [2.5, -0.5, -2.5], name: '黄色圆柱' },
+  { geo: new THREE.IcosahedronGeometry(0.3, 0), color: 0x44ffff, pos: [-1.5, -0.3, 2.5], name: '青色二十面体' },
+];
+const hiddenMeshes = [];
+hiddenObjects.forEach(({ geo, color, pos }) => {
+  const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color, roughness: 0.3, emissive: color, emissiveIntensity: 0.3 }));
+  mesh.position.set(...pos);
+  mesh.userData = { name: pos[2] > 0 ? '后面' : '前面' };
+  hiddenMeshes.push(mesh);
+  expScene.add(mesh);
+});
+
+// 地面和墙壁
+const expFloor = new THREE.Mesh(
+  new THREE.PlaneGeometry(8, 8),
+  new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.9 })
+);
+expFloor.rotation.x = -Math.PI / 2;
+expFloor.position.y = -2;
+expScene.add(expFloor);
+
+// 网格辅助
+expScene.add(new THREE.GridHelper(8, 20, 0x444444, 0x333333));
+
+// 粒子散布
+const particlesGeo = new THREE.BufferGeometry();
+const particlesCount = 200;
+const positions = new Float32Array(particlesCount * 3);
+for (let i = 0; i < particlesCount; i++) {
+  positions[i * 3] = (Math.random() - 0.5) * 7;
+  positions[i * 3 + 1] = (Math.random() - 0.5) * 4;
+  positions[i * 3 + 2] = (Math.random() - 0.5) * 7;
+}
+particlesGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+const particles = new THREE.Points(particlesGeo, new THREE.PointsMaterial({ color: 0x888888, size: 0.03 }));
+expScene.add(particles);
+
+let foundCount = 0;
+const foundSet = new Set();
+
+// 射线检测
+const raycaster = new THREE.Raycaster();
+raycaster.far = 15;
+const mouse = new THREE.Vector2();
+
+expRenderer.domElement.addEventListener('click', (e) => {
+  const rect = expRenderer.domElement.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, expCamera);
+  const intersects = raycaster.intersectObjects(hiddenMeshes);
+
+  if (intersects.length > 0) {
+    const obj = intersects[0].object;
+    if (!foundSet.has(obj)) {
+      foundSet.add(obj);
+      foundCount++;
+      obj.material.emissive.set(0xffffff);
+      obj.material.emissiveIntensity = 0.8;
+      document.getElementById('foundHint').textContent = `已找到：${foundCount} / 6`;
+      if (foundCount === 6) {
+        document.getElementById('foundHint').textContent = '🎉 全部找到！';
+        document.getElementById('foundHint').style.color = '#f59e0b';
+      }
+    }
+  }
+});
+
+function expAnimate() {
+  requestAnimationFrame(expAnimate);
+  expControls.update();
+  hiddenMeshes.forEach(m => { m.rotation.y += 0.005; });
+  particles.rotation.y += 0.0003;
+  expRenderer.render(expScene, expCamera);
+}
+expAnimate();
+
+new ResizeObserver(() => {
+  const nw = expWrap.clientWidth;
+  expRenderer.setSize(nw, eh);
+  expCamera.aspect = nw / eh;
+  expCamera.updateProjectionMatrix();
+}).observe(expWrap);
+
+// 测验
+document.getElementById('checkBtn').addEventListener('click', () => {
+  const sel = document.querySelector('input[name="q1"]:checked');
+  const fb = document.getElementById('q1fb');
+  if (!sel) { fb.textContent = '请选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+  if (sel.value === 'b') {
+    fb.textContent = '✅ 正确！controls.target 是相机围绕旋转的中心点';
+    fb.className = 'quiz-feedback correct';
+  } else {
+    fb.textContent = '❌ 再想想。提示：target 是相机"看向"的那个点。';
+    fb.className = 'quiz-feedback wrong';
+  }
+});
+</script>
+</body>
+</html>

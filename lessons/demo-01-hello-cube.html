@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo 01：Hello Cube — 第一个3D场景</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .demo-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin: 1rem 0;
+  }
+  @media (max-width: 700px) { .demo-row { grid-template-columns: 1fr; } }
+  .code-box {
+    background: #1e1e1e; color: #d4d4d4;
+    border-radius: var(--radius); overflow: hidden;
+    font-family: var(--mono); font-size: 0.82rem;
+  }
+  .code-box .header {
+    background: #333; padding: 0.35rem 1rem; font-size: 0.78rem; color: #aaa;
+  }
+  .code-box pre { margin: 0; padding: 0.8rem 1rem; }
+  .canvas-wrap {
+    background: #0a0a12; border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center;
+    min-height: 320px; position: relative; overflow: hidden;
+  }
+  .canvas-wrap .badge {
+    position: absolute; top: 0.6rem; right: 0.8rem;
+    background: #059669; color: #fff; font-size: 0.7rem;
+    padding: 0.15rem 0.5rem; border-radius: 10px;
+    font-weight: 600;
+  }
+  .highlight { color: #ffd700; }
+  .comment { color: #6a9955; }
+  .keyword { color: #569cd6; }
+  .string { color: #ce9178; }
+  .number { color: #b5cea8; }
+</style>
+</head>
+<body>
+
+<div class="lesson-meta">
+  <span class="level-badge">Lv1 · Demo 1/6</span>
+  <span>Three.js 快速上手</span>
+  <span>⏱ 约 20 分钟</span>
+</div>
+
+<h1>Demo 01：Hello Cube — 你的第一个3D场景</h1>
+
+<p>
+  不需要理解 WebGL，不需要写 Shader，只需要 <strong>10 行核心代码</strong>，就能在浏览器中看到一个旋转的彩色立方体。
+  这就是 Three.js 的魔力——它帮你封装了所有底层细节。
+</p>
+
+<div class="callout success">
+  <strong>🎯 本课目标：</strong>跑通第一个 Three.js 场景，感受"写几行代码就能出3D效果"的成就感。不理解每行代码完全没关系，后面会逐一拆解。
+</div>
+
+<!-- ====== Demo ====== -->
+<h2>🎮 实时效果</h2>
+
+<div class="demo-row">
+  <div class="code-box">
+    <div class="header">index.html — 核心代码仅 10 行</div>
+    <pre><code><span class="comment">// 1. 创建场景（舞台）</span>
+<span class="keyword">const</span> scene = <span class="keyword">new</span> THREE.<span class="highlight">Scene</span>();
+
+<span class="comment">// 2. 创建相机（观众的眼睛）</span>
+<span class="keyword">const</span> camera = <span class="keyword">new</span> THREE.<span class="highlight">PerspectiveCamera</span>(<span class="number">75</span>, w/h, <span class="number">0.1</span>, <span class="number">1000</span>);
+
+<span class="comment">// 3. 创建渲染器（画笔）</span>
+<span class="keyword">const</span> renderer = <span class="keyword">new</span> THREE.<span class="highlight">WebGLRenderer</span>();
+
+<span class="comment">// 4. 创建物体（立方体）</span>
+<span class="keyword">const</span> cube = <span class="keyword">new</span> THREE.<span class="highlight">Mesh</span>(
+  <span class="keyword">new</span> THREE.<span class="highlight">BoxGeometry</span>(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>),  <span class="comment">// 形状</span>
+  <span class="keyword">new</span> THREE.<span class="highlight">MeshStandardMaterial</span>({ <span class="string">color</span>: <span class="number">0x3b82f6</span> })  <span class="comment">// 材质</span>
+);
+scene.<span class="highlight">add</span>(cube);
+
+<span class="comment">// 5. 渲染循环（每帧旋转 + 重绘）</span>
+<span class="keyword">function</span> <span class="highlight">animate</span>() {
+  requestAnimationFrame(animate);
+  cube.rotation.x += <span class="number">0.01</span>;  <span class="comment">// 绕X轴旋转</span>
+  cube.rotation.y += <span class="number">0.01</span>;  <span class="comment">// 绕Y轴旋转</span>
+  renderer.render(scene, camera);
+}
+animate();</code></pre>
+  </div>
+  <div class="canvas-wrap" id="demoWrap">
+    <div class="badge">实时渲染</div>
+  </div>
+</div>
+
+<!-- ====== 拆解 ====== -->
+<h2>📖 逐行拆解：Three.js 三大核心</h2>
+
+<p>每个 Three.js 场景都由 <strong>三个核心对象</strong> 组成，缺一不可：</p>
+
+<table>
+  <tr><th>对象</th><th>类比</th><th>作用</th><th>忘记会怎样</th></tr>
+  <tr>
+    <td><code>Scene</code> 场景</td>
+    <td>🎭 舞台</td>
+    <td>容纳所有3D物体的容器</td>
+    <td>物体无处可放，画布全黑</td>
+  </tr>
+  <tr>
+    <td><code>Camera</code> 相机</td>
+    <td>👁️ 观众的眼睛</td>
+    <td>决定从哪个角度观察场景</td>
+    <td>看不到任何东西（视线不对）</td>
+  </tr>
+  <tr>
+    <td><code>Renderer</code> 渲染器</td>
+    <td>🖌️ 画笔</td>
+    <td>把3D场景"画"到屏幕上</td>
+    <td>Scene和Camera全白费，屏幕无内容</td>
+  </tr>
+</table>
+
+<div class="callout">
+  <strong>💡 记忆口诀：</strong>"舞台(Scene)上放了东西，观众(Camera)在某个位置看，画师(Renderer)把画面画出来。"
+</div>
+
+<!-- ====== Mesh ====== -->
+<h2>📖 Mesh（网格）：形状 + 材质 = 物体</h2>
+
+<p>Three.js 中所有可见的3D物体都是 <code>Mesh</code>。Mesh = <strong>Geometry（几何体/形状）+ Material（材质/外观）</strong>：</p>
+
+<pre><code><span class="keyword">new</span> THREE.Mesh(
+  <span class="keyword">new</span> THREE.BoxGeometry(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>),   <span class="comment">// ← Geometry：长什么样</span>
+  <span class="keyword">new</span> THREE.MeshStandardMaterial({     <span class="comment">// ← Material：什么颜色/质感</span>
+    color: <span class="number">0x3b82f6</span>
+  })
+)</code></pre>
+
+<table>
+  <tr><th>概念</th><th>类比</th><th>常见类型</th></tr>
+  <tr><td>Geometry 几何体</td><td>🏺 花瓶的"形状"</td><td>BoxGeometry 立方体、SphereGeometry 球体、CylinderGeometry 圆柱体…</td></tr>
+  <tr><td>Material 材质</td><td>🎨 花瓶的"釉色"</td><td>MeshStandardMaterial 标准材质、MeshBasicMaterial 不受光材质…</td></tr>
+</table>
+
+<!-- ====== 动手实验 ====== -->
+<h2>🧪 动手实验</h2>
+
+<p>试试修改参数，观察右边的实时变化：</p>
+
+<div class="demo-row">
+  <div class="canvas-wrap" id="expWrap">
+    <div class="badge">实验画布</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:0.7rem;">
+    <div>
+      <label style="font-weight:600;font-size:0.85rem;">旋转速度：<span id="speedVal">0.01</span></label>
+      <input type="range" id="speedSlider" min="0" max="0.1" step="0.001" value="0.01" style="width:100%">
+    </div>
+    <div>
+      <label style="font-weight:600;font-size:0.85rem;">立方体大小：<span id="sizeVal">1.0</span></label>
+      <input type="range" id="sizeSlider" min="0.3" max="2.5" step="0.1" value="1.0" style="width:100%">
+    </div>
+    <button id="colorBtn" style="padding:0.5rem 1rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);cursor:pointer;font-size:0.85rem;">
+      🎨 随机换色
+    </button>
+    <button id="shapeBtn" style="padding:0.5rem 1rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);cursor:pointer;font-size:0.85rem;">
+      🔄 切换形状
+    </button>
+    <button id="wireBtn" style="padding:0.5rem 1rem;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);cursor:pointer;font-size:0.85rem;">
+      🔍 线框模式
+    </button>
+  </div>
+</div>
+
+<!-- ====== 常见错误 ====== -->
+<h2>⚠️ 常见踩坑</h2>
+
+<div class="callout danger">
+  <strong>🚫 画布黑屏，什么都看不到？</strong> 三步排查：
+  <ol style="margin:0.3rem 0 0 1.2rem;font-size:0.9rem;">
+    <li>物体有没有 <code>scene.add(cube)</code>？忘了加 = 舞台空无一物</li>
+    <li>相机位置是否正确？<code>camera.position.z = 5</code> 确保相机离物体够近</li>
+    <li>有没有调用 <code>renderer.render(scene, camera)</code>？忘了渲染 = 画师没动笔</li>
+  </ol>
+</div>
+
+<div class="callout warn">
+  <strong>⚠️ 物体不旋转？</strong> 检查 <code>animate()</code> 函数是否被调用，以及旋转代码是否在 <code>renderer.render()</code> 之前。
+</div>
+
+<!-- ====== 测验 ====== -->
+<h2>📝 小测验</h2>
+
+<div class="quiz-block" id="quiz1">
+  <div class="quiz-question">Q1: 一个 Three.js 场景最少需要哪三个核心对象？</div>
+  <div class="quiz-options">
+    <label><input type="radio" name="q1" value="a">A. Mesh, Geometry, Material</label>
+    <label><input type="radio" name="q1" value="b">B. Scene, Camera, Renderer</label>
+    <label><input type="radio" name="q1" value="c">C. Box, Sphere, Plane</label>
+    <label><input type="radio" name="q1" value="d">D. Light, Shadow, Fog</label>
+  </div>
+  <div class="quiz-feedback" id="q1fb"></div>
+
+  <div class="quiz-question">Q2: Mesh = ? + ?</div>
+  <div class="quiz-options">
+    <label><input type="radio" name="q2" value="a">A. Scene + Camera</label>
+    <label><input type="radio" name="q2" value="b">B. Light + Shadow</label>
+    <label><input type="radio" name="q2" value="c">C. Geometry + Material</label>
+    <label><input type="radio" name="q2" value="d">D. Position + Rotation</label>
+  </div>
+  <div class="quiz-feedback" id="q2fb"></div>
+
+  <button id="checkQuiz" style="margin-top:0.8rem;padding:0.5rem 1.5rem;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);cursor:pointer;font-size:0.9rem;font-weight:600;">
+    检查答案
+  </button>
+</div>
+
+<!-- ====== 课后练习 ====== -->
+<h2>🏋️ 课后练习</h2>
+
+<ol class="steps">
+  <li><strong>改颜色</strong>：把立方体改成你喜欢的颜色（<code>0xff0000</code> 是红色，<code>0x00ff00</code> 是绿色）</li>
+  <li><strong>改大小</strong>：把立方体改成 2x2x2 和 0.5x0.5x0.5，观察变化</li>
+  <li><strong>加第二个物体</strong>：在场景中再添加一个球体，放在立方体旁边</li>
+  <li><strong>只绕一个轴旋转</strong>：注释掉 X 轴旋转，只保留 Y 轴，观察效果</li>
+</ol>
+
+<!-- ====== 页脚 ====== -->
+<div class="lesson-footer">
+  <nav>
+    <span></span>
+    <a href="demo-02-geometries.html">下一个 Demo：认识几何体家族 →</a>
+  </nav>
+  <p>
+    <strong>📖 推荐阅读：</strong><a href="https://threejs.org/docs/index.html#manual/zh/introduction/Creating-a-scene" target="_blank">Three.js 官方文档 - 创建一个场景</a><br>
+    <strong>💬 有疑问？</strong>随时向 AI 助教提问！
+  </p>
+  <p style="margin-top:1rem;color:var(--text-muted);">
+    ← <a href="../STUDY-PLAN.md">返回学习计划</a>
+  </p>
+</div>
+
+<!-- ====== Three.js + 脚本 ====== -->
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+// ======== 主 Demo ========
+function initMainDemo() {
+  const wrap = document.getElementById('demoWrap');
+  const w = wrap.clientWidth || 400;
+  const h = 320;
+
+  const scene = new THREE.Scene();
+
+  const camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 100);
+  camera.position.set(1.5, 1.5, 3);
+  camera.lookAt(0, 0, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  wrap.appendChild(renderer.domElement);
+
+  // 灯光
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  scene.add(ambientLight);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  directionalLight.position.set(3, 5, 3);
+  scene.add(directionalLight);
+
+  // 立方体
+  const geometry = new THREE.BoxGeometry(1, 1, 1);
+  const material = new THREE.MeshStandardMaterial({
+    color: 0x3b82f6,
+    roughness: 0.3,
+    metalness: 0.1
+  });
+  const cube = new THREE.Mesh(geometry, material);
+  scene.add(cube);
+
+  // 网格地面辅助
+  const gridHelper = new THREE.GridHelper(4, 10, 0x333333, 0x222222);
+  scene.add(gridHelper);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    cube.rotation.x += 0.008;
+    cube.rotation.y += 0.01;
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // 自适应
+  new ResizeObserver(() => {
+    const nw = wrap.clientWidth;
+    renderer.setSize(nw, h);
+    camera.aspect = nw / h;
+    camera.updateProjectionMatrix();
+  }).observe(wrap);
+}
+
+// ======== 实验画布 ========
+function initExpDemo() {
+  const wrap = document.getElementById('expWrap');
+  const w = wrap.clientWidth || 400;
+  const h = 320;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 100);
+  camera.position.set(1.5, 1.5, 3);
+  camera.lookAt(0, 0, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  wrap.appendChild(renderer.domElement);
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+  scene.add(ambientLight);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  directionalLight.position.set(3, 5, 3);
+  scene.add(directionalLight);
+
+  const gridHelper = new THREE.GridHelper(4, 10, 0x333333, 0x222222);
+  scene.add(gridHelper);
+
+  // 初始立方体
+  let mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshStandardMaterial({ color: 0x3b82f6, roughness: 0.3, metalness: 0.1 })
+  );
+  scene.add(mesh);
+  let isWireframe = false;
+  const shapes = [
+    () => new THREE.BoxGeometry(1, 1, 1),
+    () => new THREE.SphereGeometry(0.7, 32, 32),
+    () => new THREE.CylinderGeometry(0.5, 0.5, 1.3, 32),
+    () => new THREE.TorusGeometry(0.55, 0.2, 16, 32),
+    () => new THREE.ConeGeometry(0.6, 1.3, 32),
+  ];
+  let shapeIdx = 0;
+
+  let speed = 0.01;
+  let size = 1.0;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    mesh.rotation.x += speed;
+    mesh.rotation.y += speed * 1.2;
+    mesh.scale.setScalar(size);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // 控件
+  document.getElementById('speedSlider').addEventListener('input', (e) => {
+    speed = +e.target.value;
+    document.getElementById('speedVal').textContent = speed.toFixed(3);
+  });
+  document.getElementById('sizeSlider').addEventListener('input', (e) => {
+    size = +e.target.value;
+    document.getElementById('sizeVal').textContent = size.toFixed(1);
+  });
+  document.getElementById('colorBtn').addEventListener('click', () => {
+    const c = new THREE.Color(Math.random() * 0xffffff);
+    mesh.material.color = c;
+    if (isWireframe) mesh.material.color = c;
+  });
+  document.getElementById('shapeBtn').addEventListener('click', () => {
+    shapeIdx = (shapeIdx + 1) % shapes.length;
+    const oldGeo = mesh.geometry;
+    mesh.geometry = shapes[shapeIdx]();
+    oldGeo.dispose();
+  });
+  document.getElementById('wireBtn').addEventListener('click', () => {
+    isWireframe = !isWireframe;
+    mesh.material.wireframe = isWireframe;
+    document.getElementById('wireBtn').textContent = isWireframe ? '🔍 实体模式' : '🔍 线框模式';
+  });
+
+  new ResizeObserver(() => {
+    const nw = wrap.clientWidth;
+    renderer.setSize(nw, h);
+    camera.aspect = nw / h;
+    camera.updateProjectionMatrix();
+  }).observe(wrap);
+}
+
+// ======== 测验 ========
+document.getElementById('checkQuiz').addEventListener('click', () => {
+  const answers = { q1: 'b', q2: 'c' };
+  Object.keys(answers).forEach(q => {
+    const sel = document.querySelector(`input[name="${q}"]:checked`);
+    const fb = document.getElementById(q + 'fb');
+    if (!sel) { fb.textContent = '请选择一个答案'; fb.className = 'quiz-feedback wrong'; return; }
+    if (sel.value === answers[q]) {
+      fb.textContent = '✅ 正确！';
+      fb.className = 'quiz-feedback correct';
+    } else {
+      const hints = { q1: '提示：Scene = 舞台, Camera = 眼睛, Renderer = 画笔', q2: '提示：Mesh = 形状(Geometry) + 外观(Material)' };
+      fb.textContent = '❌ 不对。' + hints[q];
+      fb.className = 'quiz-feedback wrong';
+    }
+  });
+});
+
+initMainDemo();
+initExpDemo();
+</script>
+</body>
+</html>
