@@ -39,6 +39,11 @@ Lv5 商业项目（持续）   → 工程化/部署/数字孪生毕业项目
 - [x] Lv1 Demo 04: 鼠标控制视角
 - [x] Lv1 Demo 05: 材质初探
 - [x] Lv1 Project 01: 3D产品展示台
+- [x] STUDY-PLAN.html（学习计划预览版）
+- [x] NOTES.html（学习笔记预览版）
+
+### ⚠️ 同步更新规则
+每次更新 STUDY-PLAN.md 或 NOTES.md 时，必须同步更新对应的 HTML 预览版。更新学习进度时，所有相关文件（.md + .html）都要修改。
 
 ### 下一步待生成
 - [ ] Lv2 Demo 06-12 + Project 02

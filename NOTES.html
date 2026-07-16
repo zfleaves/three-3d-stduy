@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学习笔记 — Three.js 3D 开发</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .note-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.2rem 1.5rem; margin: 1rem 0;
+  }
+  .todo-item {
+    display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0; font-size: 0.9rem;
+  }
+  .todo-item .cb { font-size: 1.1rem; }
+  .tag { font-size: 0.7rem; padding: 0.1rem 0.5rem; border-radius: 10px; font-weight: 600; }
+  .tag.pref { background: #dbeafe; color: #1d4ed8; }
+  .tag.todo { background: #fef3c7; color: #b45309; }
+  .tag.done { background: #d1fae5; color: #059669; }
+  .file-tree {
+    background: #1e1e1e; color: #d4d4d4; font-family: var(--mono);
+    font-size: 0.8rem; padding: 1rem 1.2rem; border-radius: var(--radius);
+    line-height: 1.7; margin: 0.8rem 0;
+  }
+  .file-tree .dir { color: #569cd6; }
+  .file-tree .file { color: #d4d4d4; }
+  .file-tree .done { color: #6a9955; }
+  .file-tree .todo { color: #ce9178; }
+  .file-tree .arrow { color: #888; }
+</style>
+</head>
+<body>
+
+<div class="lesson-meta">
+  <span class="level-badge" style="background:#f59e0b !important;color:#000 !important;">📝 学习笔记</span>
+  <span>Three.js 3D 开发</span>
+  <span>更新于 2026-07-16</span>
+</div>
+
+<h1>学习笔记</h1>
+
+<!-- ====== 用户偏好 ====== -->
+<div class="note-section">
+  <h3>👤 用户偏好</h3>
+  <div class="todo-item"><span class="tag pref">偏好</span> 前端开发者，TS/ES6+，偏好动手实操</div>
+  <div class="todo-item"><span class="tag pref">偏好</span> 课件格式 HTML 可预览，嵌入可运行 demo</div>
+  <div class="todo-item"><span class="tag pref">偏好</span> 学习曲线要平缓，不要一上来就太难</div>
+  <div class="todo-item"><span class="tag pref">偏好</span> 多 demo、多实战</div>
+  <div class="todo-item"><span class="tag pref">节奏</span> 每天 2-3 小时，期望 3-4 个月完成</div>
+</div>
+
+<!-- ====== 教学风格 ====== -->
+<div class="note-section">
+  <h3>🎓 教学风格</h3>
+  <div class="todo-item">✅ 代码示例优先，概念在代码中讲解</div>
+  <div class="todo-item">✅ 每个阶段结束要有可运行的 demo 作为里程碑</div>
+  <div class="todo-item">✅ 错误排查经验要融入课程（base.md 中的高频错误）</div>
+  <div class="todo-item">✅ 概念用类比解释（舞台/眼睛/画笔）</div>
+</div>
+
+<!-- ====== 文件结构 ====== -->
+<div class="note-section">
+  <h3>📁 项目文件结构</h3>
+  <div class="file-tree">
+    <span class="dir">three-3d-stduy/</span><br>
+    <span class="arrow">├──</span> <span class="file done">CLAUDE.md</span>          <span class="done">✅ Claude 项目规则</span><br>
+    <span class="arrow">├──</span> <span class="file done">CODEX.md</span>           <span class="done">✅ Codex 项目规则</span><br>
+    <span class="arrow">├──</span> <span class="file done">MISSION.md</span>         <span class="done">✅ 学习目标</span><br>
+    <span class="arrow">├──</span> <span class="file done">STUDY-PLAN.md</span>      <span class="done">✅ 学习计划（详细版）</span><br>
+    <span class="arrow">├──</span> <span class="file done">STUDY-PLAN.html</span>     <span class="done">✅ 学习计划（预览版）</span><br>
+    <span class="arrow">├──</span> <span class="file done">RESOURCES.md</span>       <span class="done">✅ 学习资源</span><br>
+    <span class="arrow">├──</span> <span class="file done">NOTES.md</span>           <span class="done">✅ 学习笔记（源文件）</span><br>
+    <span class="arrow">├──</span> <span class="file done">NOTES.html</span>          <span class="done">✅ 学习笔记（预览版）</span><br>
+    <span class="arrow">├──</span> <span class="dir">assets/</span><br>
+    <span class="arrow">│</span>   <span class="arrow">└──</span> <span class="file done">style.css</span>      <span class="done">✅ 共享样式表</span><br>
+    <span class="arrow">├──</span> <span class="dir">lessons/</span><br>
+    <span class="arrow">│</span>   <span class="arrow">├──</span> <span class="file done">demo-01-hello-cube.html</span>           <span class="done">✅</span><br>
+    <span class="arrow">│</span>   <span class="arrow">├──</span> <span class="file done">demo-02-geometries.html</span>           <span class="done">✅</span><br>
+    <span class="arrow">│</span>   <span class="arrow">├──</span> <span class="file done">demo-03-lights.html</span>               <span class="done">✅</span><br>
+    <span class="arrow">│</span>   <span class="arrow">├──</span> <span class="file done">demo-04-orbit-controls.html</span>        <span class="done">✅</span><br>
+    <span class="arrow">│</span>   <span class="arrow">├──</span> <span class="file done">demo-05-materials.html</span>             <span class="done">✅</span><br>
+    <span class="arrow">│</span>   <span class="arrow">├──</span> <span class="file done">project-01-product-showcase.html</span>    <span class="done">✅</span><br>
+    <span class="arrow">│</span>   <span class="arrow">├──</span> <span class="file todo">demo-06-transforms.html</span>             <span class="todo">待生成</span><br>
+    <span class="arrow">│</span>   <span class="arrow">├──</span> <span class="file todo">demo-07-textures.html</span>               <span class="todo">待生成</span><br>
+    <span class="arrow">│</span>   <span class="arrow">├──</span> <span class="file todo">...</span>                                   <span class="todo">Lv2-Lv5 待生成</span><br>
+    <span class="arrow">├──</span> <span class="dir">learning-records/</span><br>
+    <span class="arrow">│</span>   <span class="arrow">└──</span> <span class="file done">0001-prior-frontend-knowledge.md</span>   <span class="done">✅</span><br>
+    <span class="arrow">└──</span> <span class="dir">docs/</span><br>
+    <span class="arrow">    </span> <span class="arrow">└──</span> <span class="file done">base.md</span>                              <span class="done">✅ 原始五级大纲</span>
+  </div>
+</div>
+
+<!-- ====== TODO ====== -->
+<div class="note-section">
+  <h3>📋 Workspace TODO</h3>
+
+  <h4>Lv1 快速上手</h4>
+  <div class="todo-item"><span class="tag done">✅</span> Demo 01: Hello Cube</div>
+  <div class="todo-item"><span class="tag done">✅</span> Demo 02: 几何体家族</div>
+  <div class="todo-item"><span class="tag done">✅</span> Demo 03: 光影魔法</div>
+  <div class="todo-item"><span class="tag done">✅</span> Demo 04: 鼠标控制视角</div>
+  <div class="todo-item"><span class="tag done">✅</span> Demo 05: 材质初探</div>
+  <div class="todo-item"><span class="tag done">✅</span> Project 01: 3D产品展示台</div>
+
+  <h4>Lv2 深入理解</h4>
+  <div class="todo-item"><span class="tag todo">待做</span> Demo 06: 坐标系统与变换</div>
+  <div class="todo-item"><span class="tag todo">待做</span> Demo 07: 纹理贴图</div>
+  <div class="todo-item"><span class="tag todo">待做</span> Demo 08: 动画系统</div>
+  <div class="todo-item"><span class="tag todo">待做</span> Demo 09: 粒子系统</div>
+  <div class="todo-item"><span class="tag todo">待做</span> Demo 10: 文字与标注</div>
+  <div class="todo-item"><span class="tag todo">待做</span> Demo 11: 阴影完全指南</div>
+  <div class="todo-item"><span class="tag todo">待做</span> Demo 12: PBR材质深入</div>
+  <div class="todo-item"><span class="tag todo">待做</span> Project 02: 3D房间漫游</div>
+
+  <h4>Lv3 模型交互</h4>
+  <div class="todo-item"><span class="tag todo">待做</span> Demo 13-18 + Project 03</div>
+
+  <h4>Lv4 底层优化</h4>
+  <div class="todo-item"><span class="tag todo">待做</span> Demo 19-26 + Project 04</div>
+
+  <h4>Lv5 工程化</h4>
+  <div class="todo-item"><span class="tag todo">待做</span> 工程化 + 毕业项目</div>
+
+  <h4>其他</h4>
+  <div class="todo-item"><span class="tag todo">待做</span> 创建 GLOSSARY.md 术语表</div>
+  <div class="todo-item"><span class="tag todo">待做</span> 创建 reference/ 速查参考</div>
+</div>
+
+<!-- ====== 学习记录 ====== -->
+<div class="note-section">
+  <h3>📚 学习记录</h3>
+  <div class="todo-item"><span class="tag done">LR-0001</span> 已有前端基础（HTML/CSS/JS/TS + 框架 + 工程化）</div>
+</div>
+
+<div class="lesson-footer">
+  <p>
+    <strong>📖 参考：</strong><a href="NOTES.md">NOTES.md（源文件）</a> ·
+    <a href="STUDY-PLAN.html">STUDY-PLAN.html</a> ·
+    <a href="MISSION.md">MISSION.md</a><br>
+    <strong>💬 有疑问？</strong>随时向 AI 助教提问！
+  </p>
+</div>
+</body>
+</html>
