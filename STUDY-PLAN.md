@@ -218,11 +218,13 @@ Lv2已铺垫(几何体内部结构+UV) → 复习顶点属性 → 替换ShaderMa
 |------|------|---------|
 | [古柳·Shader入门教程(一)](https://juejin.cn/post/7233359844974182437) | 文章 | 几何体→UV→ShaderMaterial→GLSL基础 |
 | 古柳·Shader入门教程(二-五) | 系列 | 内置变量、纹理、噪声、实战 |
-| 古柳·着色器基础(3篇) | 系列 | attribute/uniform/varying、纹理采样、噪声 |
+| [古柳·着色器基础（专栏）](https://juejin.cn/column/7095538674886344717) | 专栏 | attribute/uniform/varying、纹理采样、噪声（4篇） |
 | [The Book of Shaders](https://thebookofshaders.com/) | 交互书 | GLSL 圣经，从形状到噪声到分形 |
 | [Shadertoy](https://www.shadertoy.com/) | 平台 | 海量 Shader 源码，模仿学习 |
 | [Inigo Quilez](https://iquilezles.org/) | 博客 | Ray Marching、SDF、噪声（进阶） |
-| 阳轩·Three.js 进阶之旅 | 掘金专栏 | Shader + 光源 + 粒子 + 性能 |
+| [阳轩·Three.js 进阶之旅](https://juejin.cn/column/7142349626215104526) | 掘金专栏 | Shader + 光源 + 粒子 + 性能 |
+| [B站「进华」three.js教程](https://www.bilibili.com/video/BV1Gg411X7FY/) | 视频 | 从入门到入门，简洁清晰 |
+| [犹他大学图形学课程](https://www.bilibili.com/video/BV1kf4y1N7vX) | 视频 | 2020秋，中英字幕，MVP 变换深入 |
 
 ---
 
