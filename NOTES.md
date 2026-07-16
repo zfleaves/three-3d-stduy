@@ -12,17 +12,21 @@
 - 代码示例优先，概念在代码中讲解
 - 每个阶段结束要有可运行的 demo 作为里程碑
 - 错误排查经验要融入课程（base.md 中的高频错误非常实用）
+- Shader 学习从"理解数据"开始，不是从"写 GLSL"开始
+
+## 学习计划版本
+- v1: 原始 base.md 五级体系
+- v2: 平缓曲线 + 多 Demo（从 Three.js 高层起步）
+- **v3 (当前)**: 整合掘金 Shader 文章，几何体内部结构→UV→ShaderMaterial 渐进路线
 
 ## Workspace TODO
 - [x] 创建 assets/ 共享样式表 (style.css)
-- [x] Lv1 Demo 01: Hello Cube（Three.js 入门）
-- [x] Lv1 Demo 02: 几何体家族
-- [x] Lv1 Demo 03: 光影魔法
-- [x] Lv1 Demo 04: 鼠标控制视角
-- [x] Lv1 Demo 05: 材质初探
-- [x] Lv1 综合项目: 3D产品展示台
-- [ ] Lv2 Demo 06-12 + 综合项目
-- [ ] Lv3 Demo 13-18 + 综合项目
-- [ ] Lv4 Demo 19-26 + 综合项目
+- [x] Lv1 Demo 01-05 + Project 01（全部完成）
+- [x] STUDY-PLAN.html + NOTES.html 预览版
+- [x] 整合掘金 Shader 文章，学习计划升级 v3
+- [ ] Lv2 Demo 06-12 + Project 02（含几何体内部结构+UV 新增内容）
+- [ ] Lv3 Demo 13-17 + Project 03
+- [ ] Lv4 Demo 18-26 + Project 04（Shader 渐进路线重构）
 - [ ] Lv5 工程化 + 毕业项目
 - [ ] 创建 GLOSSARY.md 术语表
+- [ ] 创建 reference/ 速查参考

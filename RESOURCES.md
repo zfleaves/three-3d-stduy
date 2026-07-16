@@ -16,11 +16,23 @@
 - 《Three.js 开发指南》— Jos Dirksen
   Three.js 实战书籍，覆盖从基础到高级。使用场景：Lv2-Lv3 阶段参考。
 
+### 文章教程
+- [Three.js Shader 入门教程（一）— 古柳（掘金）](https://juejin.cn/post/7233359844974182437)
+  **Lv4 Shader 核心参考**，从几何体顶点→UV→ShaderMaterial→GLSL 的平缓渐进路径。
+- [从零开始学图形学：MVP Transformation](https://zhuanlan.zhihu.com/p/343532009)
+  MVP 变换详解。使用场景：Lv4.3 顶点着色器学习。
+- [图形学：MVP变换概述](https://zhuanlan.zhihu.com/p/551648397)
+  另一篇 MVP 变换文章，互为补充。
+- [计算机图形学：齐次坐标与 MVP 矩阵变换](https://zhuanlan.zhihu.com/p/261097735)
+  深入理解齐次坐标在 MVP 中的作用。
+
 ### 视频教程（B站）
 - 李超：WebGL 原生零基础入门 — Lv1 底层基础
 - 老陈说编程：ThreeJS 入门到数字孪生 — 全阶段实战
 - 十里青山：ThreeJS 系统进阶课 — Lv3-Lv4 进阶
 - 技术蛋老师：Shader 着色器入门 — Lv4 核心
+- 进华：three.js教程-从入门到入门 — 简洁清晰，全阶段参考
+- 犹他大学计算机图形学课程（2020秋，B站中英字幕）— MVP 变换深入理解
 
 ### 工具链
 - [Blender](https://www.blender.org/) — 开源 3D 建模软件，模型减面、UV、GLB 导出
@@ -32,6 +44,8 @@
 - [Learn OpenGL](https://learnopengl.com/) — 虽然面向 OpenGL，但 Shader 和图形学原理通用
 - [The Book of Shaders](https://thebookofshaders.com/) — 交互式 Shader 入门，Lv4 必备
 - [WebGPU 规范](https://www.w3.org/TR/webgpu/) — 下一代 Web 图形 API，了解趋势
+- [Codepen 古柳示例](https://codepen.io/GuLiu/pen/poBBEgP) — 掘金 Shader 文章配套代码
+- 公众号「牛衣古柳」— 回复 `learn three.js` 获取《Three.js 开发指南》PDF
 
 ## Wisdom (Communities)
 

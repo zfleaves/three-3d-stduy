@@ -39,15 +39,13 @@ Lv5 商业项目（持续）   → 工程化/部署/数字孪生毕业项目
 - [x] Lv1 Demo 04: 鼠标控制视角
 - [x] Lv1 Demo 05: 材质初探
 - [x] Lv1 Project 01: 3D产品展示台
-- [x] STUDY-PLAN.html（学习计划预览版）
+- [x] STUDY-PLAN.html（学习计划预览版 v3）
 - [x] NOTES.html（学习笔记预览版）
-
-### ⚠️ 同步更新规则
-每次更新 STUDY-PLAN.md 或 NOTES.md 时，必须同步更新对应的 HTML 预览版。更新学习进度时，所有相关文件（.md + .html）都要修改。
+- [x] 学习计划 v3：整合掘金 Shader 文章，新增几何体内部结构+UV 铺垫
 
 ### 下一步待生成
-- [ ] Lv2 Demo 06-12 + Project 02
-- [ ] Lv3 Demo 13-18 + Project 03
-- [ ] Lv4 Demo 19-26 + Project 04
+- [ ] Lv2 Demo 06-12 + Project 02（含 🆕 几何体内部结构 + UV坐标）
+- [ ] Lv3 Demo 13-17 + Project 03
+- [ ] Lv4 Demo 18-26 + Project 04（Shader 渐进路线重构）
 - [ ] Lv5 工程化 + 毕业项目
 - [ ] reference/ 速查参考（GLOSSARY.md 术语表、API速查等）
