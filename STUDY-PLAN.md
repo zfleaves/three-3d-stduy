@@ -187,95 +187,172 @@
 
 ---
 
-## Lv4 — Shader 着色器 + 性能优化（12-18天）⭐ 核心重构
+## Lv4 — Shader 着色器 + 性能优化（15-20天）⭐ 薪资分水岭
 
-> **目标**：从"理解几何体数据"平滑过渡到"写自定义 Shader"，彻底掌握底层
-> **参考**：掘金·古柳「Three.js Shader 入门」系列 + 《The Book of Shaders》
-> **难度**：★★★★☆
+> **目标**：彻底掌握 Shader，从"API调用者"变成"能写自定义特效的3D工程师"
+> **参考**：掘金·古柳「Three.js Shader 入门」系列 + 《The Book of Shaders》+ Shadertoy
+> **难度**：★★★★☆ · **这是整个学习计划中最重要的一级，决定了你的薪资天花板**
 
-### 🔑 Lv4 Shader 学习路径（掘金文章方法论）
+### 💰 为什么 Shader 是分水岭？
+
+| 能力 | 市场定位 | 薪资 |
+|------|---------|------|
+| 只会用 Three.js API | 初级 3D 前端（可替代性强） | 10k-18k |
+| 能写自定义 Shader 特效 | 中级 3D 前端（有竞争力） | 15k-25k |
+| Shader + 性能优化 + 架构 | 高级 3D 前端（稀缺） | 25k-50k+ |
+| Shader + WebGPU + 图形学 | 专家/架构师（极度稀缺） | 50k-80k |
+
+### 🔑 Lv4 Shader 学习路径
 
 ```
 Lv2已铺垫(几何体内部结构+UV) → 复习顶点属性 → 替换ShaderMaterial
-→ GLSL语法速成 → 顶点着色器MVP变换 → 片元着色器UV创意
-→ 高级特效 → 后处理
+→ GLSL语法速成 → attribute/uniform/varying 数据传递
+→ 顶点着色器MVP变换 → 片元着色器UV创意
+→ 纹理采样 → 噪声算法 → 经典特效
+→ 后处理 → 性能优化 → 综合实战
 ```
 
-### 4.1 复习顶点属性 + 第一个 ShaderMaterial（1小时）⭐
+### 📚 Shader 核心参考资料
+
+| 资源 | 类型 | 覆盖内容 |
+|------|------|---------|
+| [古柳·Shader入门教程(一)](https://juejin.cn/post/7233359844974182437) | 文章 | 几何体→UV→ShaderMaterial→GLSL基础 |
+| 古柳·Shader入门教程(二-五) | 系列 | 内置变量、纹理、噪声、实战 |
+| 古柳·着色器基础(3篇) | 系列 | attribute/uniform/varying、纹理采样、噪声 |
+| [The Book of Shaders](https://thebookofshaders.com/) | 交互书 | GLSL 圣经，从形状到噪声到分形 |
+| [Shadertoy](https://www.shadertoy.com/) | 平台 | 海量 Shader 源码，模仿学习 |
+| [Inigo Quilez](https://iquilezles.org/) | 博客 | Ray Marching、SDF、噪声（进阶） |
+| 阳轩·Three.js 进阶之旅 | 掘金专栏 | Shader + 光源 + 粒子 + 性能 |
+
+---
+
+### 🎯 Shader 专项（核心 10 个 Demo）⭐⭐⭐
+
+### 4.1 复习顶点属性 + 第一个 ShaderMaterial（1小时）
 **Demo**: `demo-18-first-shader.html`
 - 回顾 Lv2.1 的 `geometry.attributes`（position、uv、normal）
 - 用 `ShaderMaterial` 替换 `MeshBasicMaterial`
 - 写最简单的红色片元着色器：`gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);`
 - 顶点着色器最小结构：`gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);`
 - 理解 ShaderMaterial vs RawShaderMaterial 的区别
-- **收获**：**从内置材质到自定义 Shader 的第一步，理解"替换"的魔法**
+- **参考**：古柳·Shader入门教程(一)
+- **收获**：从内置材质到自定义 Shader 的第一步
 
-### 4.2 GLSL 语言速成（1小时）⭐
+### 4.2 GLSL 语言速成（1小时）
 **Demo**: `demo-19-glsl-basics.html`
-- 数据类型：float、int、bool、vec2、vec3、vec4
-- 向量分量访问：`.x .y .z .w` 和 `.r .g .b .a`
-- 向量运算：逐分量计算、灵活组合 `vec3(vec2(0.5), 1.0)`
-- 颜色范围：0.0-1.0（超出会被截取）
-- 函数定义：以返回值类型开头，参数需写明类型
-- 语句必须分号结尾
-- **收获**：掌握 GLSL 基本语法，能看懂和修改 Shader 代码
+- 数据类型：float、int、bool、vec2、vec3、vec4、mat3、mat4
+- 向量分量：`.x .y .z .w` / `.r .g .b .a` / `.s .t .p .q`
+- 向量运算：逐分量计算、`vec3(vec2(0.5), 1.0)` 灵活组合
+- 内置函数：`mix()、step()、smoothstep()、clamp()、fract()、length()、distance()、dot()、cross()、normalize()、sin()、cos()`
+- 颜色范围：0.0-1.0（超出被截取）、语句必须分号
+- **参考**：《The Book of Shaders》第1-3章
+- **收获**：掌握 GLSL 基本语法和核心内置函数
 
-### 4.3 顶点着色器与 MVP 变换（1.5小时）⭐
-**Demo**: `demo-20-vertex-shader.html`
+### 4.3 数据传递：attribute、uniform、varying（1.5小时）
+**Demo**: `demo-20-shader-data-flow.html`
+- **attribute**：每个顶点不同的数据（position、uv、normal、color）
+- **uniform**：所有顶点相同的数据（时间、鼠标位置、分辨率、纹理）
+- **varying**：顶点着色器 → 片元着色器的数据桥梁（自动插值）
+- 实战：用 uniform 传时间做动画，用 varying 传颜色做渐变
+- **参考**：古柳·着色器基础(一) attribute/uniform/varying
+- **收获**：理解 Shader 中数据如何流动
+
+### 4.4 顶点着色器与 MVP 变换（1.5小时）
+**Demo**: `demo-21-vertex-shader.html`
 - MVP 变换全流程：Model → View → Projection
-- `modelMatrix`：模型本地坐标 → 世界坐标
-- `viewMatrix`：基于相机位置变换
-- `modelViewMatrix`：前两者合并（Three.js 内置）
-- `projectionMatrix`：3D → 2D 屏幕投影
-- 顶点扰动效果：`position.y += sin(position.x * 3.0) * 0.1;`
-- **收获**：理解顶点着色器如何控制物体形状和位置
+- `modelMatrix`、`viewMatrix`、`modelViewMatrix`、`projectionMatrix`
+- 顶点扰动：`position.y += sin(position.x * 3.0 + uTime) * 0.1;`
+- 顶点变形：波纹、膨胀、扭曲
+- **参考**：知乎 MVP 文章 + 犹他大学图形学课程
+- **收获**：理解顶点着色器如何控制物体形状
 
-### 4.4 片元着色器 + UV 创意（1.5小时）⭐
-**Demo**: `demo-21-fragment-shader.html`
-- 将 UV 直接作为颜色输出：`gl_FragColor = vec4(vUv.x, vUv.y, 0.0, 1.0);`
-- UV 渐变效果（R=u, G=v）
+### 4.5 片元着色器 + UV 创意（1.5小时）
+**Demo**: `demo-22-fragment-uv.html`
+- UV 渐变：`gl_FragColor = vec4(vUv.x, vUv.y, 0.0, 1.0);`
 - 重复条纹：`step(0.5, fract(vUv.x * 5.0))`
-- 圆形图案：`length(vUv - 0.5)` 计算到中心的距离
+- 圆形/环形：`length(vUv - 0.5)`、`smoothstep()`
+- 网格/棋盘：`fract()` 组合
 - 颜色混合：`mix(color1, color2, factor)`
-- **收获**：用 UV 坐标创造丰富的图案效果
+- **参考**：《The Book of Shaders》第4-5章（形状与图案）
+- **收获**：用 UV 坐标创造丰富的 2D 图案
 
-### 4.5 常用 Shader 特效（2小时）
-**Demo**: `demo-22-shader-effects.html`
-- 溶解效果（discard + noise）
-- 波纹效果（sin + distance）
-- 描边效果（fresnel）
-- 霓虹发光（smoothstep + glow）
-- **收获**：掌握 4 种常用 Shader 特效
+### 4.6 纹理采样与图像处理（1.5小时）
+**Demo**: `demo-23-shader-texture.html`
+- 将纹理传入 Shader：`uniform sampler2D uTexture;`
+- 纹理采样：`texture2D(uTexture, vUv);`
+- 图像滤镜：灰度、反色、亮度/对比度/饱和度
+- 模糊效果：多次采样取平均
+- 纹理混合：多纹理叠加
+- **参考**：古柳·着色器基础(二) 纹理
+- **收获**：在 Shader 中处理纹理和图像
 
-### 4.6 后处理特效（1小时）
-**Demo**: `demo-23-postprocessing.html`
-- EffectComposer 管线
-- 辉光（Bloom）、景深（DOF）、画面调色
-- **收获**：提升画面品质
+### 4.7 噪声算法：随机与秩序（2小时）⭐
+**Demo**: `demo-24-noise.html`
+- 随机函数：`fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453)`
+- 值噪声（Value Noise）：随机 + 平滑插值
+- 柏林噪声（Perlin Noise）：自然的随机感
+- Simplex Noise：柏林噪声的优化版
+- 分形布朗运动（fBm）：多层噪声叠加
+- 应用：云朵、火焰、地形、大理石纹理
+- **参考**：古柳·着色器基础(三) 噪声 + 《The Book of Shaders》第11-13章
+- **收获**：噪声是 Shader 最重要的算法之一，开启无限创意
 
-### 4.7 性能优化（1.5小时）
-**Demo**: `demo-24-performance.html`
-- 1000个立方体：普通 vs InstancedMesh
-- FPS 监控、几何体合并、视锥剔除
-- **收获**：让场景跑得流畅
+### 4.8 经典 Shader 特效（2小时）
+**Demo**: `demo-25-shader-effects.html`
+- 溶解效果（dissolve）：`discard` + noise 阈值
+- 波纹效果（ripple）：`sin(distance(uv, center) * freq + time)`
+- 描边/轮廓（outline）：Fresnel 效果 `1.0 - abs(dot(normal, viewDir))`
+- 霓虹发光（glow）：`smoothstep()` + 多层叠加
+- 全息效果（hologram）：扫描线 + 透明度 + 边缘发光
+- 故障效果（glitch）：随机偏移色块
+- **参考**：Shadertoy 搜索 dissolve/glow/hologram 源码
+- **收获**：掌握 6 种常用 Shader 特效
 
-### 4.8 贴图与资源优化（1小时）
-**Demo**: `demo-25-texture-optimization.html`
-- 贴图 2 的幂次方规范、纹理压缩
-- 资源销毁（防止内存泄漏）
-- SPA 路由切换时的资源清理
-- **收获**：避免线上事故
-
-### 4.9 物理引擎（1.5小时）
-**Demo**: `demo-26-physics.html`
-- Cannon-es 重力+碰撞+弹跳
-- **收获**：场景有物理真实感
+### 4.9 后处理特效（1.5小时）
+**Demo**: `demo-26-postprocessing.html`
+- EffectComposer 管线：多个 Pass 串联
+- UnrealBloomPass：辉光（Bloom）
+- AfterimagePass：拖尾残影
+- ShaderPass：自定义后处理 Shader
+- 画面调色：LUT 颜色查找表
+- **参考**：古柳·Shader入门教程(五) 后期处理
+- **收获**：提升画面品质到电影级
 
 ### 4.10 🎯 综合项目：Shader 特效秀（3小时）
 **Demo**: `project-04-shader-show.html`
-- 多个自定义 Shader 特效组合
-- 辉光后处理 + 性能优化 + 鼠标交互
-- **收获**：展示技术深度的作品
+- 6+ 自定义 Shader 特效组合
+- 辉光后处理 + 鼠标交互
+- 噪声驱动动画
+- 性能优化（60fps）
+- **收获**：展示技术深度的作品集项目
+
+---
+
+### ⚡ 性能优化专项（3个 Demo）
+
+### 4.11 渲染性能优化（1.5小时）
+**Demo**: `demo-27-performance.html`
+- 1000个物体：普通 Mesh vs InstancedMesh（帧率对比）
+- FPS 监控面板
+- 几何体合并（BufferGeometryUtils.mergeGeometries）
+- 视锥剔除（Frustum Culling）
+- LOD（多细节层次）
+- **收获**：让海量物体跑 60fps
+
+### 4.12 资源与内存优化（1小时）
+**Demo**: `demo-28-resource-optimization.html`
+- 贴图 2 的幂次方规范
+- 纹理压缩（KTX2/Basis）
+- `dispose()` 资源销毁
+- SPA 路由切换时的资源清理
+- 内存泄漏检测
+- **收获**：避免线上内存泄漏事故
+
+### 4.13 物理引擎（1.5小时）
+**Demo**: `demo-29-physics.html`
+- Cannon-es 重力+碰撞+弹跳
+- 多米诺骨牌效果
+- **收获**：场景有物理真实感
 
 ---
 
@@ -310,9 +387,9 @@ Lv2已铺垫(几何体内部结构+UV) → 复习顶点属性 → 替换ShaderMa
 | Lv1 快速上手 | 5 | 1 | 6 | 全部 ✅ |
 | Lv2 深入理解 | 7 | 1 | 8 | 新增几何体内部结构+UV |
 | Lv3 模型交互 | 5 | 1 | 6 | — |
-| Lv4 Shader+性能 | 9 | 1 | **10** | 重构：Shader 平缓渐进 |
+| Lv4 Shader+性能 | 12 | 1 | **13** | 重构：Shader 10专项+3性能+1项目 |
 | Lv5 工程化 | 4 | 1 | 5 | — |
-| **总计** | **30** | **5** | **35** | |
+| **总计** | **33** | **5** | **38** | |
 
 ---
 
@@ -330,11 +407,11 @@ Lv2已铺垫(几何体内部结构+UV) → 复习顶点属性 → 替换ShaderMa
 | Day 12-14 | Lv3.1 模型加载 + Lv3.2 动画 | ☐ |
 | Day 15-17 | Lv3.3 鼠标拾取 + Lv3.4 天空盒 + Lv3.5 场景管理 | ☐ |
 | Day 18-19 | Lv3.6 🎯 产品展示官网 | ☐ |
-| Day 20-21 | Lv4.1 第一个ShaderMaterial + Lv4.2 GLSL速成 | ☐ |
-| Day 22-24 | Lv4.3 顶点着色器 + Lv4.4 片元着色器UV创意 | ☐ |
-| Day 25-27 | Lv4.5 Shader特效 + Lv4.6 后处理 | ☐ |
-| Day 28-30 | Lv4.7 性能优化 + Lv4.8 资源优化 | ☐ |
-| Day 31-33 | Lv4.9 物理引擎 + Lv4.10 🎯 Shader特效秀 | ☐ |
+| Day 20-22 | Lv4.1 第一个ShaderMaterial + Lv4.2 GLSL速成 + Lv4.3 数据传递 | ☐ |
+| Day 23-26 | Lv4.4 顶点着色器 + Lv4.5 片元UV创意 + Lv4.6 纹理采样 | ☐ |
+| Day 27-30 | Lv4.7 噪声算法 + Lv4.8 经典特效 | ☐ |
+| Day 31-33 | Lv4.9 后处理 + Lv4.10 🎯 Shader特效秀 | ☐ |
+| Day 34-37 | Lv4.11 性能优化 + Lv4.12 资源优化 + Lv4.13 物理引擎 | ☐ |
 | Week 8-12+ | Lv5 工程化 + 毕业项目 | ☐ |
 
 ---

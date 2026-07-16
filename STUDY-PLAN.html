@@ -11,6 +11,7 @@
   .level-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.5rem; margin: 1rem 0; }
   .level-section.current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
   .level-section.done { border-color: var(--success); background: #f8fdf9; }
+  .level-section.key { border-color: #f59e0b; box-shadow: 0 0 0 1px rgba(245,158,11,0.3)); background: #fffdf5; }
   .level-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
   .level-tag { padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
   .level-tag.lv1 { background: #dbeafe; color: #1d4ed8; }
@@ -19,8 +20,9 @@
   .level-tag.lv4 { background: #fef3c7; color: #b45309; }
   .level-tag.lv5 { background: #fce7f3; color: #9d174d; }
   .level-tag.current { animation: pulse 2s infinite; }
+  .level-tag.key { background: #f59e0b !important; color: #000 !important; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
-  .demo-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.4rem; }
+  .demo-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.4rem; }
   .demo-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.6rem; border-radius: 6px; font-size: 0.85rem; text-decoration: none; color: var(--text); }
   .demo-item:hover { background: var(--code-bg); }
   .demo-item.done { color: var(--success); }
@@ -30,15 +32,17 @@
   .demo-item .tag.demo { background: #dbeafe; color: #1d4ed8; }
   .demo-item .tag.project { background: #fef3c7; color: #b45309; }
   .demo-item .tag.new { background: #d1fae5; color: #059669; }
-  .timeline-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0; font-size: 0.85rem; }
-  .timeline-row .day { min-width: 85px; font-weight: 600; }
-  .timeline-row .desc { flex: 1; }
-  .timeline-row .cb { width: 18px; text-align: center; }
+  .demo-item .tag.shader { background: #fef3c7; color: #b45309; }
   .summary-bar { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 1rem 0; font-size: 0.9rem; }
   .summary-bar .stat { font-weight: 700; font-size: 1.3rem; color: var(--accent); }
-  .market-table td:first-child { white-space: nowrap; }
+  .salary-table td:first-child { white-space: nowrap; }
   .ref-link { font-size: 0.85rem; color: var(--text-muted); }
   .ref-link a { color: var(--accent); }
+  .shader-resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 0.6rem; margin: 0.8rem 0; }
+  .shader-resource-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.8rem 1rem; font-size: 0.85rem; }
+  .shader-resource-card .title { font-weight: 650; }
+  .shader-resource-card .desc { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem; }
+  .shader-resource-card a { font-weight: 600; }
 </style>
 </head>
 <body>
@@ -46,23 +50,24 @@
 <div class="lesson-meta">
   <span class="level-badge" style="background:#8b5cf6 !important;">📋 v3</span>
   <span>Three.js 3D 开发</span>
-  <span>更新于 2026-07-16</span>
+  <span>更新于 2026-07-16 · Shader 强化版</span>
 </div>
 
 <h1>Three.js 3D Web 开发学习计划 v3</h1>
 <p class="ref-link">
   参考：<a href="docs/base.md">base.md 五级体系</a> ·
-  <a href="https://juejin.cn/post/7233359844974182437" target="_blank">掘金·古柳 Three.js Shader 入门</a> ·
+  <a href="https://juejin.cn/post/7233359844974182437" target="_blank">掘金·古柳 Shader 系列</a> ·
+  <a href="https://thebookofshaders.com/" target="_blank">The Book of Shaders</a> ·
   BOSS直聘招聘要求
 </p>
 
 <div class="summary-bar">
-  <div>总进度 <span class="stat">6/35</span> 个课件</div>
+  <div>总进度 <span class="stat">6/38</span> 个课件</div>
   <div>当前阶段 <span class="stat" style="color:#1d4ed8;">Lv1</span> 快速上手</div>
-  <div>预计完成 <span class="stat">3-4 个月</span></div>
+  <div>Shader 专项 <span class="stat" style="color:#b45309;">13</span> 个 Demo</div>
 </div>
 <div class="progress-bar">
-  <div class="fill" style="width:17%;"></div>
+  <div class="fill" style="width:16%;"></div>
 </div>
 
 <!-- ====== Lv1 ====== -->
@@ -70,11 +75,11 @@
   <div class="level-header">
     <span class="level-tag lv1 current">Lv1 · 进行中</span>
     <strong>Three.js 快速上手</strong>
-    <span style="font-size:0.8rem;color:var(--text-muted);">3天 · 信心建立期 · 难度 ★☆☆☆☆</span>
+    <span style="font-size:0.8rem;color:var(--text-muted);">3天 · ★☆☆☆☆</span>
   </div>
   <div class="demo-list">
-    <a href="lessons/demo-01-hello-cube.html" class="demo-item done"><span class="check">✅</span><span class="tag demo">Demo</span> 01：Hello Cube — 第一个3D场景</a>
-    <a href="lessons/demo-02-geometries.html" class="demo-item done"><span class="check">✅</span><span class="tag demo">Demo</span> 02：认识几何体家族</a>
+    <a href="lessons/demo-01-hello-cube.html" class="demo-item done"><span class="check">✅</span><span class="tag demo">Demo</span> 01：Hello Cube</a>
+    <a href="lessons/demo-02-geometries.html" class="demo-item done"><span class="check">✅</span><span class="tag demo">Demo</span> 02：几何体家族</a>
     <a href="lessons/demo-03-lights.html" class="demo-item done"><span class="check">✅</span><span class="tag demo">Demo</span> 03：光影魔法</a>
     <a href="lessons/demo-04-orbit-controls.html" class="demo-item done"><span class="check">✅</span><span class="tag demo">Demo</span> 04：鼠标控制视角</a>
     <a href="lessons/demo-05-materials.html" class="demo-item done"><span class="check">✅</span><span class="tag demo">Demo</span> 05：材质初探</a>
@@ -87,11 +92,11 @@
   <div class="level-header">
     <span class="level-tag lv2">Lv2</span>
     <strong>Three.js 深入理解</strong>
-    <span style="font-size:0.8rem;color:var(--text-muted);">7-10天 · 难度 ★★☆☆☆</span>
+    <span style="font-size:0.8rem;color:var(--text-muted);">7-10天 · ★★☆☆☆</span>
   </div>
   <div class="demo-list">
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> <span class="tag new">🆕</span> 06：几何体内部结构 — 点线面体</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> <span class="tag new">🆕</span> 07：UV 纹理坐标 — 从顶点到纹理</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> <span class="tag new">🆕</span> 06：几何体内部结构</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> <span class="tag new">🆕</span> 07：UV 纹理坐标</span>
     <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 08：坐标系统与变换</span>
     <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 09：纹理贴图实战</span>
     <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 10：动画系统</span>
@@ -106,7 +111,7 @@
   <div class="level-header">
     <span class="level-tag lv3">Lv3</span>
     <strong>模型加载与交互</strong>
-    <span style="font-size:0.8rem;color:var(--text-muted);">7-10天 · 难度 ★★★☆☆</span>
+    <span style="font-size:0.8rem;color:var(--text-muted);">7-10天 · ★★★☆☆</span>
   </div>
   <div class="demo-list">
     <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 13：GLTF/GLB 模型加载</span>
@@ -118,24 +123,44 @@
   </div>
 </div>
 
-<!-- ====== Lv4 ====== -->
-<div class="level-section">
+<!-- ====== Lv4 - 薪资分水岭 ====== -->
+<div class="level-section key">
   <div class="level-header">
-    <span class="level-tag lv4">Lv4</span>
+    <span class="level-tag key">💰 Lv4 · 薪资分水岭</span>
     <strong>Shader 着色器 + 性能优化</strong>
-    <span style="font-size:0.8rem;color:var(--text-muted);">12-18天 · 难度 ★★★★☆ · 掘金文章核心参考</span>
+    <span style="font-size:0.8rem;color:#b45309;">15-20天 · ★★★★☆ · 13个 Shader 专项 Demo</span>
   </div>
+
+  <div style="margin:0.8rem 0;padding:0.8rem 1rem;background:#fffbeb;border-radius:var(--radius);border-left:3px solid #f59e0b;">
+    <strong>💰 为什么 Shader 是分水岭？</strong>
+    <table style="margin:0.5rem 0;font-size:0.85rem;">
+      <tr><th>能力</th><th>市场定位</th><th>薪资</th></tr>
+      <tr><td>只会 Three.js API</td><td>初级（可替代性强）</td><td>10k-18k</td></tr>
+      <tr><td>能写自定义 Shader</td><td>中级（有竞争力）</td><td>15k-25k</td></tr>
+      <tr><td>Shader + 性能 + 架构</td><td>高级（稀缺）</td><td>25k-50k+</td></tr>
+      <tr><td>Shader + WebGPU + 图形学</td><td>专家（极度稀缺）</td><td>50k-80k</td></tr>
+    </table>
+  </div>
+
+  <h4>🎯 Shader 专项（10 个核心 Demo）</h4>
   <div class="demo-list">
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> <span class="tag new">重构</span> 18：第一个 ShaderMaterial</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> <span class="tag new">重构</span> 19：GLSL 语言速成</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> <span class="tag new">重构</span> 20：顶点着色器与 MVP 变换</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> <span class="tag new">重构</span> 21：片元着色器 + UV 创意</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 22：常用 Shader 特效</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 23：后处理特效</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 24：性能优化</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 25：贴图与资源优化</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 26：物理引擎</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag shader">Shader</span> 18：第一个 ShaderMaterial</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag shader">Shader</span> 19：GLSL 语言速成</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag shader">Shader</span> 20：attribute/uniform/varying</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag shader">Shader</span> 21：顶点着色器与 MVP</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag shader">Shader</span> 22：片元着色器 + UV 创意</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag shader">Shader</span> 23：纹理采样与图像处理</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag shader">Shader</span> 24：噪声算法 ⭐ 核心</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag shader">Shader</span> 25：经典特效（溶解/波纹/描边/霓虹/全息/故障）</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag shader">Shader</span> 26：后处理特效</span>
     <span class="demo-item"><span class="check">☐</span><span class="tag project">项目</span> 🏆 04：Shader 特效秀</span>
+  </div>
+
+  <h4>⚡ 性能优化专项</h4>
+  <div class="demo-list">
+    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 27：渲染性能优化</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 28：资源与内存优化</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 29：物理引擎</span>
   </div>
 </div>
 
@@ -144,56 +169,67 @@
   <div class="level-header">
     <span class="level-tag lv5">Lv5</span>
     <strong>工程化与商业项目落地</strong>
-    <span style="font-size:0.8rem;color:var(--text-muted);">持续 · 难度 ★★★★★</span>
+    <span style="font-size:0.8rem;color:var(--text-muted);">持续 · ★★★★★</span>
   </div>
   <div class="demo-list">
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 27：工程化搭建（Vite+TS）</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 28：资源管理</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 29：前端框架集成</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 30：移动端适配</span>
-    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 31：打包部署</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 30：工程化搭建（Vite+TS）</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 31：资源管理</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 32：前端框架集成</span>
+    <span class="demo-item"><span class="check">☐</span><span class="tag demo">Demo</span> 33：移动端适配</span>
     <span class="demo-item"><span class="check">☐</span><span class="tag project">项目</span> 🏆 毕业项目：数字孪生园区</span>
   </div>
 </div>
 
-<!-- ====== 时间线 ====== -->
-<h2>📅 学习时间线</h2>
-<table>
-  <tr><th>时间</th><th>内容</th><th>状态</th></tr>
-  <tr><td>Day 1</td><td>Lv1.1 Hello Cube + Lv1.2 几何体</td><td>✅</td></tr>
-  <tr><td>Day 2</td><td>Lv1.3 光影 + Lv1.4 鼠标控制</td><td>☐</td></tr>
-  <tr><td>Day 3</td><td>Lv1.5 材质 + Lv1.6 🏆 产品展示台</td><td>☐</td></tr>
-  <tr><td>Day 4-5</td><td>Lv2.1 几何体内部结构 + Lv2.2 UV坐标 🆕</td><td>☐</td></tr>
-  <tr><td>Day 6-7</td><td>Lv2.3 坐标变换 + Lv2.4 纹理贴图</td><td>☐</td></tr>
-  <tr><td>Day 8-11</td><td>Lv2.5 动画 + Lv2.6 粒子 + Lv2.7 阴影 + 🏆 房间漫游</td><td>☐</td></tr>
-  <tr><td>Day 12-19</td><td>Lv3 模型加载 → 🏆 产品官网</td><td>☐</td></tr>
-  <tr><td>Day 20-33</td><td>Lv4 Shader渐进 → 🏆 Shader特效秀</td><td>☐</td></tr>
-  <tr><td>Week 8-12+</td><td>Lv5 工程化 → 🏆 毕业项目</td><td>☐</td></tr>
-</table>
+<!-- ====== Shader 资源汇总 ====== -->
+<h2>📚 Shader 学习资源汇总</h2>
+
+<div class="shader-resource-grid">
+  <div class="shader-resource-card">
+    <div class="title">📖 <a href="https://juejin.cn/post/7233359844974182437" target="_blank">古柳·Shader入门教程</a></div>
+    <div class="desc">几何体→UV→ShaderMaterial→GLSL 渐进路径，Lv4 核心参考</div>
+  </div>
+  <div class="shader-resource-card">
+    <div class="title">📖 古柳·着色器基础（3篇）</div>
+    <div class="desc">attribute/uniform/varying、纹理采样、噪声算法</div>
+  </div>
+  <div class="shader-resource-card">
+    <div class="title">📖 <a href="https://thebookofshaders.com/" target="_blank">The Book of Shaders</a></div>
+    <div class="desc">GLSL 圣经，交互式学习，从形状到噪声到分形</div>
+  </div>
+  <div class="shader-resource-card">
+    <div class="title">💻 <a href="https://www.shadertoy.com/" target="_blank">Shadertoy</a></div>
+    <div class="desc">海量 Shader 源码，模仿学习的最佳平台</div>
+  </div>
+  <div class="shader-resource-card">
+    <div class="title">📝 <a href="https://iquilezles.org/" target="_blank">Inigo Quilez 博客</a></div>
+    <div class="desc">Ray Marching、SDF、噪声算法（进阶）</div>
+  </div>
+  <div class="shader-resource-card">
+    <div class="title">📖 阳轩·Three.js 进阶之旅</div>
+    <div class="desc">掘金专栏，Shader + 光源 + 粒子 + 性能</div>
+  </div>
+  <div class="shader-resource-card">
+    <div class="title">🎥 B站「进华」three.js教程</div>
+    <div class="desc">从入门到入门，简洁清晰</div>
+  </div>
+  <div class="shader-resource-card">
+    <div class="title">🎓 犹他大学图形学课程</div>
+    <div class="desc">2020秋，B站中英字幕，MVP 变换深入</div>
+  </div>
+</div>
 
 <!-- ====== 招聘市场对标 ====== -->
 <h2>💼 招聘市场对标</h2>
-<table class="market-table">
-  <tr><th>阶段</th><th>可应聘岗位</th><th>预期薪资</th><th>核心技能展示</th></tr>
-  <tr><td>Lv3 完成</td><td>初级 3D 前端</td><td>10k-18k</td><td>GLB 模型加载 + 交互 demo</td></tr>
-  <tr><td>Lv4 完成</td><td>中级 3D 前端</td><td>15k-25k</td><td>自定义 Shader + 性能优化 demo</td></tr>
-  <tr><td>Lv5 完成</td><td>高级 3D 前端</td><td>20k-50k+</td><td>完整商业项目 + 源码 + 线上地址</td></tr>
-</table>
-
-<!-- ====== 新增资源 ====== -->
-<h2>📚 新增参考资源（掘金文章推荐）</h2>
-<table>
-  <tr><th>类型</th><th>资源</th><th>用途</th></tr>
-  <tr><td>📖 文章</td><td><a href="https://juejin.cn/post/7233359844974182437" target="_blank">掘金·古柳 Three.js Shader 入门</a></td><td>Lv4 Shader 核心参考</td></tr>
-  <tr><td>🎥 视频</td><td>B站「进华」three.js教程-从入门到入门</td><td>全阶段</td></tr>
-  <tr><td>🎓 课程</td><td>犹他大学计算机图形学（2020秋，B站中英字幕）</td><td>MVP 变换理解</td></tr>
-  <tr><td>📝 文章</td><td><a href="https://zhuanlan.zhihu.com/p/343532009" target="_blank">从零开始学图形学：MVP Transformation</a></td><td>Lv4 顶点着色器</td></tr>
-  <tr><td>💻 代码</td><td><a href="https://codepen.io/GuLiu/pen/poBBEgP" target="_blank">Codepen 示例</a></td><td>掘金文章配套代码</td></tr>
+<table class="salary-table">
+  <tr><th>阶段</th><th>可应聘岗位</th><th>预期薪资</th><th>核心技能</th></tr>
+  <tr><td>Lv3 完成</td><td>初级 3D 前端</td><td>10k-18k</td><td>GLB 模型 + 交互</td></tr>
+  <tr style="background:#fffbeb;"><td><strong>Lv4 完成</strong></td><td><strong>中级 3D 前端</strong></td><td><strong>15k-25k</strong></td><td><strong>自定义 Shader + 性能优化</strong></td></tr>
+  <tr><td>Lv5 完成</td><td>高级 3D 前端</td><td>20k-50k+</td><td>完整商业项目 + 上线</td></tr>
 </table>
 
 <div class="lesson-footer">
   <p>
-    <strong>📖 参考：</strong><a href="STUDY-PLAN.md">STUDY-PLAN.md（详细版）</a> ·
+    <strong>📖 参考：</strong><a href="STUDY-PLAN.md">STUDY-PLAN.md</a> ·
     <a href="MISSION.md">MISSION.md</a> ·
     <a href="RESOURCES.md">RESOURCES.md</a><br>
     <strong>💬 有疑问？</strong>随时向 AI 助教提问！

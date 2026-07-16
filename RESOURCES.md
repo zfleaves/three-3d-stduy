@@ -34,6 +34,23 @@
 - 进华：three.js教程-从入门到入门 — 简洁清晰，全阶段参考
 - 犹他大学计算机图形学课程（2020秋，B站中英字幕）— MVP 变换深入理解
 
+### Shader 专项资源（💰 Lv4 薪资分水岭核心）
+
+- [古柳·Three.js Shader 入门教程（一）](https://juejin.cn/post/7233359844974182437)
+  几何体顶点→UV→ShaderMaterial→GLSL 渐进路径。**Lv4 核心参考**。
+- 古柳·Three.js Shader 入门教程（二-五）
+  系列后续：内置变量、纹理采样、噪声、后处理实战。
+- 古柳·Three.js Shader 着色器基础（3篇）
+  attribute/uniform/varying、纹理、噪声。**Lv4.3-4.7 参考**。
+- [The Book of Shaders](https://thebookofshaders.com/)（中文版）
+  **GLSL 圣经**，交互式学习。从形状→图案→噪声→分形，Lv4 全程参考。
+- [Shadertoy](https://www.shadertoy.com/)
+  海量 Shader 源码社区。**学习方式：搜索 dissolve/glow/noise 等关键词，模仿源码**。
+- [Inigo Quilez 博客](https://iquilezles.org/)
+  Ray Marching、SDF、噪声算法。**进阶必读**，Lv4 完成后可深入。
+- 阳轩·Three.js 进阶之旅（掘金专栏）
+  Shader 着色器入门 + 光源 + 粒子 + 性能优化，全阶段参考。
+
 ### 工具链
 - [Blender](https://www.blender.org/) — 开源 3D 建模软件，模型减面、UV、GLB 导出
 - [glTF-Transform](https://gltf-transform.dev/) — glTF 模型压缩/优化 CLI
